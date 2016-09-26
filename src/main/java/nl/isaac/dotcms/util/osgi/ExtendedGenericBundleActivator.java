@@ -19,11 +19,11 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
-import org.apache.commons.lang.Validate;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import com.dotcms.repackage.org.apache.commons.lang.Validate;
 import com.dotcms.repackage.org.apache.felix.http.api.ExtHttpService;
 import com.dotcms.repackage.org.osgi.framework.BundleContext;
 import com.dotcms.repackage.org.osgi.framework.ServiceReference;

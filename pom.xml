@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.isaac.dotcms.plugin.languagevariables</groupId>
 	<artifactId>isaac-dotcms-languagevariables</artifactId>
-	<version>3.2.1</version>
+	<version>3.2.2</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,12 +52,7 @@
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Bundle-Activator>nl.isaac.dotcms.languagevariables.osgi.LanguageVariablesActivator</Bundle-Activator>
 						<Export-Package>nl.isaac.dotcms.languagevariables.languageservice</Export-Package>
-						<Import-Package>com.dotcms.repackage.org.osgi.framework,
-							com.dotmarketing.osgi,
-							com.dotmarketing.beans,
-							com.dotmarketing.portlets.languagesmanager.business,
-							com.dotmarketing.portlets.languagesmanager.model,
-							com.liferay.portal</Import-Package>
+						<Import-Package />
 						<DynamicImport-Package>*</DynamicImport-Package>
 						<Embed-Dependency>*;scope=compile|runtime;inline=false</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
@@ -69,19 +64,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.4</version>
-		</dependency>
-		<dependency>
 			<groupId>com.dotcms</groupId>
 			<artifactId>dotcms</artifactId>
-			<version>3.0.1</version>
+			<version>3.2</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -91,21 +76,45 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
+			<groupId>com.dotcms.lib</groupId>
+			<artifactId>dot.commons-io</artifactId>
+			<version>2.0.1_1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.portlet</groupId>
-			<artifactId>portlet-api</artifactId>
-			<version>2.0</version>
+			<groupId>com.dotcms.lib</groupId>
+			<artifactId>dot.commons-lang</artifactId>
+			<version>2.4_1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.dotcms.lib</groupId>
 			<artifactId>dot.felix</artifactId>
 			<version>4.2.1_1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.dotcms.lib</groupId>
+			<artifactId>dot.urlrewritefilter</artifactId>
+			<version>4.0.3_1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.dotcms.lib</groupId>
+			<artifactId>dot.org.apache.felix.http.bundle</artifactId>
+			<version>2.2.0_1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.dotcms.lib</groupId>
+			<artifactId>dot.portlet</artifactId>
+			<version>1.0_1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

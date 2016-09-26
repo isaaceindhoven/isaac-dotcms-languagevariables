@@ -128,6 +128,9 @@ public class RequestUtil implements ViewTool {
 	public String getLanguage() {
 		String languageId = (String) request.getSession().getAttribute(WebKeys.HTMLPAGE_LANGUAGE);
 		if(languageId == null) {
+			languageId = (String) request.getSession().getAttribute(WebKeys.HTMLPAGE_LANGUAGE);
+		}
+		if(languageId == null) {
 			Logger.warn(this, "Can't detect language, returning default language");
 			languageId = Long.valueOf(APILocator.getLanguageAPI().getDefaultLanguage().getId()).toString();
 		}
