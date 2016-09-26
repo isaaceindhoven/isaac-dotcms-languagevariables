@@ -5,7 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import nl.isaac.dotcms.languagevariables.cache.LanguageListCacheGroupHandler;
-import nl.isaac.dotcms.languagevariables.languageservice.ContentGlossaryAPI;
+import nl.isaac.dotcms.languagevariables.languageservice.LanguageVariablesAPI;
 import nl.isaac.dotcms.languagevariables.util.Configuration;
 
 import org.apache.velocity.tools.view.context.ViewContext;
@@ -68,8 +68,8 @@ public class LanguageVariablesWebAPI implements ViewTool {
 		if(shouldReturnKey()) {
 			return key;
 		} else {
-			ContentGlossaryAPI contentGlossaryAPI = new ContentGlossaryAPI(request);
-			String value = contentGlossaryAPI.getValue(key);
+			LanguageVariablesAPI languageVariablesAPI = new LanguageVariablesAPI(request);
+			String value = languageVariablesAPI.getValue(key);
 			
 			return (value == null) ? addKeyToCacheAndReturnKey(key, languageId) : value;
 		}

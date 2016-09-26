@@ -1,13 +1,15 @@
 package nl.isaac.dotcms.languagevariables.cache;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import nl.isaac.dotcms.languagevariables.languageservice.ContentGlossaryAPI;
-import nl.isaac.dotcms.languagevariables.util.Configuration;
+import nl.isaac.dotcms.languagevariables.languageservice.LanguageVariablesAPI;
+import nl.isaac.dotcms.languagevariables.util.LanguageVariable;
 
-import com.dotmarketing.portlets.contentlet.model.Contentlet;
+import com.dotmarketing.beans.Host;
+import com.dotmarketing.util.Logger;
 
 public class LanguageVariablesCacheItemHandler implements ItemHandler<String> {
 
@@ -21,17 +23,51 @@ public class LanguageVariablesCacheItemHandler implements ItemHandler<String> {
 		String hostIdentifier = keyObject.getHostId();
 		boolean live = keyObject.getLive();
 		
-		ContentGlossaryAPI contentGlossaryAPI = new ContentGlossaryAPI(languageId, hostIdentifier, live);
-		List<Contentlet> results = contentGlossaryAPI.getContentletsWithKey(propertyKey);
+		LanguageVariablesAPI contentGlossaryAPI = new LanguageVariablesAPI(languageId, hostIdentifier, live);
+		List<LanguageVariable> results = contentGlossaryAPI.getLanguageVariablesWithKey(propertyKey);
 		
-		String value = null;
+		return getHostSpecificResult(results);
+	}
 		
+	/**
+	 * When there is more than one result in the results, this method will extract a host specific version (we assume there is only 1 host specific version)
+	 * When there is only one result then that result will be returned
+	 */
+	private String getHostSpecificResult(List<LanguageVariable> results) {
 		if (results != null && results.size() > 0) {
-			Contentlet languageVariable = results.get(0);
-			value = languageVariable.getStringProperty(Configuration.getStructureValueField());
-		} 
+			LanguageVariable languageVariable = null;
+			if(results.size() > 1) {
+				List<LanguageVariable> resultsWithoutSystemHost = removeSystemHost(results);
+				if(resultsWithoutSystemHost.size() == 0) {
+					languageVariable = results.get(0);
+					if(results.size() > 1) {
+						Logger.info(this, "Found multiple language variables with key " + languageVariable.getKey() + " and host SYSTEM_HOST in language " + languageVariable.getLanguageId() + ". Returning random one");
+					}
+				} else {
+					languageVariable = resultsWithoutSystemHost.get(0);
+					if(resultsWithoutSystemHost.size() > 1) {
+						Logger.info(this, "Found multiple language variables with key " + languageVariable.getKey() + " and host " + languageVariable.getHostIdentifier() + " in language " + languageVariable.getLanguageId() + ". Returning random one");
+					}
+				}
+			} else {
+				languageVariable = results.get(0);
+			}
+			
+			return languageVariable.getValue();
+		}
 		
-		return value;
+		return null;
+	}
+
+	private List<LanguageVariable> removeSystemHost(List<LanguageVariable> languageVariables) {
+		List<LanguageVariable> languageVariablesWithoutSystemHost = new ArrayList<LanguageVariable>();
+		for(LanguageVariable languageVariable: languageVariables) {
+			if(!languageVariable.getHostIdentifier().equals(Host.SYSTEM_HOST)) {
+				languageVariablesWithoutSystemHost.add(languageVariable);
+			}
+		}
+		
+		return languageVariablesWithoutSystemHost;
 	}
 
 	@Override
