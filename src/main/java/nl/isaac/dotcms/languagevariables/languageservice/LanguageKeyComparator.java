@@ -10,5 +10,4 @@ public class LanguageKeyComparator implements Comparator<Contentlet> {
 		return o1.getStringProperty("key").compareTo(o2.getStringProperty("key"));
 	}
 
-
 }

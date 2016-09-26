@@ -19,26 +19,31 @@ public final class ParamValidationUtil {
 			throw new IllegalArgumentException("parameter " + paramName + " cannot be null.");
 		}
 	}
+	
 	public static void validateParamMaxLength(String param, int maxLength, String paramName) {
 		if (param.length() > maxLength) {
 			throw new IllegalArgumentException("Length of parameter " + paramName + " must be lesser than or equals to " + maxLength);
 		}
 	}
+	
 	public static void validateParamMinLength(String param, int minLength, String paramName) {
 		if (param.length() < minLength) {
 			throw new IllegalArgumentException("Length of parameter " + paramName + " must be bigger than or equals to " + minLength);
 		}
 	}
+	
 	public static void validateParamMinCollectionSize(Collection<?> param, int minSize, String paramName) {
 		if (param.size() < minSize) {
 			throw new IllegalArgumentException("Size of Collection parameter " + paramName + " must be bigger than or equals to " + minSize);
 		}
 	}
+	
 	public static void validateParamReadableDirectory(File folder, String paramName) {
 		if(!folder.exists() || !folder.canRead() || !folder.isDirectory()) {
 			throw new IllegalArgumentException("Folder " + folder.getAbsolutePath() + " in parameter " + paramName + " is not a readble directory.");
 		}
 	}
+	
 	public static String emptyStringToNull(String str) {
 		return str == null || str.equals("")? null: str;
 	}
@@ -51,7 +56,7 @@ public final class ParamValidationUtil {
 	public static String validateAsADirectory(String absoluteRoot, String dir, boolean createDir) {
 		String path		= absoluteRoot + dir;
 		
-		//1) Check if the directory immediately starts with the name and not with \
+		// 1) Check if the directory immediately starts with the name and not with \
 		// 2) Check if the directory ends with a \ or /
 		if (!dir.endsWith("\\") && !dir.endsWith("/")) {
 			throw new IllegalArgumentException(dir + " must end with a  \\ or a /.");

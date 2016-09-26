@@ -2,9 +2,6 @@ package nl.isaac.dotcms.languagevariables.cache;
 
 import java.util.List;
 
-
-
-
 public class LanguageListCacheGroupHandler extends CacheGroupHandler<List> {
 	
 	public static final String GROUP_NAME = "LANGUAGE_LIST_CACHE";
@@ -12,7 +9,6 @@ public class LanguageListCacheGroupHandler extends CacheGroupHandler<List> {
 	
 	private LanguageListCacheGroupHandler() {
 		super(GROUP_NAME, new LanguageListCacheItemHandler(), List.class);
-		
 	}
 	
 	public static LanguageListCacheGroupHandler getInstance() {
@@ -22,6 +18,5 @@ public class LanguageListCacheGroupHandler extends CacheGroupHandler<List> {
 		
 		return cache;
 	}
-	
 
 }

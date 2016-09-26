@@ -1,7 +1,6 @@
 <%@page import="com.dotmarketing.business.web.WebAPILocator"%>
 <%@page import="com.dotmarketing.business.web.HostWebAPIImpl"%>
 <%@page import="com.dotmarketing.business.web.HostWebAPI"%>
-<%@page import="nl.isaac.dotcms.languagevariables.languageservice.ContentGlossaryAPI"%>
 <%@page import="com.dotmarketing.portlets.contentlet.model.Contentlet"%>
 <%@page import="nl.isaac.dotcms.languagevariables.viewtool.LanguageVariablesWebAPI"%>
 <%@ page import="com.dotmarketing.util.Logger"%>

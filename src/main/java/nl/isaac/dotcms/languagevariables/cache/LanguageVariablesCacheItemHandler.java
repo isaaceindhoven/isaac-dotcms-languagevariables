@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import nl.isaac.dotcms.languagevariables.languageservice.LanguageVariablesAPI;
-import nl.isaac.dotcms.languagevariables.util.LanguageVariable;
+import nl.isaac.dotcms.languagevariables.util.LanguageVariableContentlet;
 
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.util.Logger;
@@ -24,7 +24,7 @@ public class LanguageVariablesCacheItemHandler implements ItemHandler<String> {
 		boolean live = keyObject.getLive();
 		
 		LanguageVariablesAPI contentGlossaryAPI = new LanguageVariablesAPI(languageId, hostIdentifier, live);
-		List<LanguageVariable> results = contentGlossaryAPI.getLanguageVariablesWithKey(propertyKey);
+		List<LanguageVariableContentlet> results = contentGlossaryAPI.getLanguageVariablesContentletsWithKey(propertyKey);
 		
 		return getHostSpecificResult(results);
 	}
@@ -33,11 +33,11 @@ public class LanguageVariablesCacheItemHandler implements ItemHandler<String> {
 	 * When there is more than one result in the results, this method will extract a host specific version (we assume there is only 1 host specific version)
 	 * When there is only one result then that result will be returned
 	 */
-	private String getHostSpecificResult(List<LanguageVariable> results) {
+	private String getHostSpecificResult(List<LanguageVariableContentlet> results) {
 		if (results != null && results.size() > 0) {
-			LanguageVariable languageVariable = null;
+			LanguageVariableContentlet languageVariable = null;
 			if(results.size() > 1) {
-				List<LanguageVariable> resultsWithoutSystemHost = removeSystemHost(results);
+				List<LanguageVariableContentlet> resultsWithoutSystemHost = removeSystemHost(results);
 				if(resultsWithoutSystemHost.size() == 0) {
 					languageVariable = results.get(0);
 					if(results.size() > 1) {
@@ -59,9 +59,9 @@ public class LanguageVariablesCacheItemHandler implements ItemHandler<String> {
 		return null;
 	}
 
-	private List<LanguageVariable> removeSystemHost(List<LanguageVariable> languageVariables) {
-		List<LanguageVariable> languageVariablesWithoutSystemHost = new ArrayList<LanguageVariable>();
-		for(LanguageVariable languageVariable: languageVariables) {
+	private List<LanguageVariableContentlet> removeSystemHost(List<LanguageVariableContentlet> languageVariables) {
+		List<LanguageVariableContentlet> languageVariablesWithoutSystemHost = new ArrayList<LanguageVariableContentlet>();
+		for(LanguageVariableContentlet languageVariable: languageVariables) {
 			if(!languageVariable.getHostIdentifier().equals(Host.SYSTEM_HOST)) {
 				languageVariablesWithoutSystemHost.add(languageVariable);
 			}

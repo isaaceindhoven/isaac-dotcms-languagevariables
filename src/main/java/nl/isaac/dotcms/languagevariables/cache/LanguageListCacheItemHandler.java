@@ -7,8 +7,6 @@ import java.util.Map;
 
 import nl.isaac.dotcms.languagevariables.util.Configuration;
 
-
-
 public class LanguageListCacheItemHandler implements ItemHandler<List> {
 
 	@Override

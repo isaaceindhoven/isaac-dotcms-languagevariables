@@ -14,20 +14,20 @@ import com.liferay.portal.model.User;
 
 public class LanguageVariableFactory {
 	
-	public static LanguageVariable getPreviousVersionInCurrentLanguage(LanguageVariable languageVariable, User user, boolean respectFrontendRoles) {
+	public static LanguageVariableContentlet getPreviousVersionInCurrentLanguage(LanguageVariableContentlet languageVariable, User user, boolean respectFrontendRoles) {
 		
 		List<Contentlet> contentletVersions = getContentletVersions(languageVariable.getContentlet(), user, respectFrontendRoles);
-		List<LanguageVariable> versions = getLanguageVariablesFromListInLanguage(contentletVersions, languageVariable.getLanguageId());
+		List<LanguageVariableContentlet> versions = getLanguageVariablesFromListInLanguage(contentletVersions, languageVariable.getLanguageId());
 		
 		if(UtilMethods.isSet(languageVariable.getInode())) {
-			//When changing version
-			for(LanguageVariable version: versions) {
+			// When changing version
+			for(LanguageVariableContentlet version: versions) {
 				if(!version.getInode().equals(languageVariable.getInode())) {
 					return version;
 				}
 			}
 		} else {
-			//When this is a new version without an inode
+			// When this is a new version without an inode
 			if(versions.size() > 0) {
 				return versions.get(0);
 			}
@@ -48,27 +48,27 @@ public class LanguageVariableFactory {
 					});
 					return contentletVersions;
 			} catch (Exception e) {
-				Logger.warn(LanguageVariableFactory.class, "Can't retrieve versions of contentlet " + newContentlet.getMap().get("key") + ", language " + newContentlet.getLanguageId());
+				Logger.warn(LanguageVariableFactory.class, "Can't retrieve versions of contentlet " + newContentlet.getMap().get("key") + ", language " + newContentlet.getLanguageId(), e);
 			}
 		}
 		
 		return new ArrayList<Contentlet>();
 	}
 
-	public static List<LanguageVariable> getLanguageVariablesFromList(List<Contentlet> results) {
-		List<LanguageVariable> languageVariables = new ArrayList<LanguageVariable>();
+	public static List<LanguageVariableContentlet> getLanguageVariablesFromList(List<Contentlet> results) {
+		List<LanguageVariableContentlet> languageVariables = new ArrayList<LanguageVariableContentlet>();
 		for(Contentlet result: results) {
-			languageVariables.add(new LanguageVariable(result));
+			languageVariables.add(new LanguageVariableContentlet(result));
 		}
 		
 		return languageVariables;
 	}
 
-	public static List<LanguageVariable> getLanguageVariablesFromListInLanguage(List<Contentlet> results, long languageId) {
-		List<LanguageVariable> languageVariables = new ArrayList<LanguageVariable>();
+	public static List<LanguageVariableContentlet> getLanguageVariablesFromListInLanguage(List<Contentlet> results, long languageId) {
+		List<LanguageVariableContentlet> languageVariables = new ArrayList<LanguageVariableContentlet>();
 		for(Contentlet result: results) {
 			if(result.getLanguageId() == languageId) {
-				languageVariables.add(new LanguageVariable(result));
+				languageVariables.add(new LanguageVariableContentlet(result));
 			}
 		}
 		

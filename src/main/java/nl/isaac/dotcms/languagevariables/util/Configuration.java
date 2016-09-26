@@ -3,6 +3,7 @@ package nl.isaac.dotcms.languagevariables.util;
 import nl.isaac.dotcms.util.osgi.PropertiesManager;
 
 public class Configuration {
+	
 	public static final String CacheListKeysWithoutValue = "CacheListKeys." + Configuration.class.getName();
 	private static PropertiesManager propertiesManager;
 	
@@ -48,4 +49,5 @@ public class Configuration {
 	public static String getDisplayKeysParameterName() {
 		return get("parameter.display-keys");
 	}
+	
 }

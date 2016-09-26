@@ -40,7 +40,7 @@ public class CacheGroupHandler<T> {
 			try {
 				o = cache.get(key, groupName);
 			} catch (DotCacheException e) {
-				Logger.error(this.getClass(), String.format("DotCacheException for Group '%s', key '%s', message: %s", groupName, key, e.getMessage()), e);
+				Logger.error(this, String.format("DotCacheException for Group '%s', key '%s', message: %s", groupName, key, e.getMessage()), e);
 			}
 		}
 		if(o == null || !itemClass.isInstance(o)) {

@@ -23,6 +23,7 @@ import com.liferay.portal.SystemException;
 import com.liferay.portal.model.User;
 
 public class RequestUtil implements ViewTool {
+	
 	private HttpServletRequest request;
 	
 	/**
@@ -48,7 +49,6 @@ public class RequestUtil implements ViewTool {
 			return false;
 		}
 	}
-	
 	
 	public boolean isAdministratorLoggedIn() {
 		try {
@@ -96,11 +96,8 @@ public class RequestUtil implements ViewTool {
 		try {
 			frontend = uwai.getLoggedInFrontendUser(request);
 			backend  = uwai.getLoggedInUser(request);
-		} catch (DotRuntimeException e) {
-			throw new RuntimeException(e.toString(), e);
-		} catch (PortalException e) {
-			throw new RuntimeException(e.toString(), e);
-		} catch (SystemException e) {
+		} catch (DotRuntimeException | PortalException | SystemException e) {
+			Logger.error(this, "Error occured while getting logged in frontend - and backend user", e);
 			throw new RuntimeException(e.toString(), e);
 		}
 		
@@ -114,13 +111,8 @@ public class RequestUtil implements ViewTool {
 	public Host getCurrentHost() {
 		try {
 			return WebAPILocator.getHostWebAPI().getCurrentHost(request);
-		} catch (PortalException e) {
-			throw new RuntimeException(e);
-		} catch (SystemException e) {
-			throw new RuntimeException(e);
-		} catch (DotDataException e) {
-			throw new RuntimeException(e);
-		} catch (DotSecurityException e) {
+		} catch (PortalException | SystemException | DotDataException | DotSecurityException e) {
+			Logger.error(this, "Error occured while retrieving current host", e);
 			throw new RuntimeException(e);
 		}
 	}
@@ -141,4 +133,5 @@ public class RequestUtil implements ViewTool {
 	public static Integer getSelectedLanguage(HttpServletRequest request) {
 		return (Integer)request.getSession().getAttribute(WebKeys.LANGUAGE);
 	}
+	
 }

@@ -1,20 +1,6 @@
 <?xml version="1.0"?>
 
 <portlet-app>
-<!-- 	<portlet> -->
-<!-- 		<portlet-name>EXT_LANGUAGE_VARIABLES</portlet-name> -->
-<!-- 		<display-name>Language Variables</display-name> -->
-<!-- 		<portlet-class>com.liferay.portlet.JSPPortlet</portlet-class> -->
-<!-- 		<init-param> -->
-<!-- 			<name>view-jsp</name> -->
-<!-- 			<value>/ext/language_variables.jsp</value> -->
-<!-- 		</init-param> -->
-<!-- 		<expiration-cache>0</expiration-cache> -->
-<!-- 		<supports> -->
-<!-- 			<mime-type>text/html</mime-type> -->
-<!-- 		</supports> -->
-<!-- 	</portlet> -->
-
 	<portlet>
 		<portlet-name>EXT_LANGUAGE_VARIABLES_KEYS_WITHOUT_VALUE</portlet-name>
 		<display-name>Language Variables Without Value</display-name>

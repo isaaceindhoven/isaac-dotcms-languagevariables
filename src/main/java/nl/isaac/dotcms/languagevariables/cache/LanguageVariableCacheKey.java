@@ -1,6 +1,5 @@
 package nl.isaac.dotcms.languagevariables.cache;
 
-
 /**
  * Immutable class to uniquely identify a Language Variable file.
  * 
@@ -8,6 +7,7 @@ package nl.isaac.dotcms.languagevariables.cache;
  *
  */
 public class LanguageVariableCacheKey {
+	
 	private static final String SEPARATOR = "-xXx-";
 	private final String propertyKey;
 	private final String languageId;
@@ -63,4 +63,5 @@ public class LanguageVariableCacheKey {
 	public int hashCode() {
 		return getKey().hashCode();
 	}
+	
 }

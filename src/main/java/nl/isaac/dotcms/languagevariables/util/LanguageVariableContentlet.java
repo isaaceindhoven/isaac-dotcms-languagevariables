@@ -3,10 +3,12 @@ package nl.isaac.dotcms.languagevariables.util;
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.portlets.structure.model.Structure;
 
-public class LanguageVariable {
+
+public class LanguageVariableContentlet {
+	
 	private final Contentlet contentlet;
 	
-	public LanguageVariable(Contentlet contentlet) {
+	public LanguageVariableContentlet(Contentlet contentlet) {
 		if(isLanguageVariable(contentlet)) {
 			this.contentlet = contentlet;
 		} else {
@@ -18,7 +20,6 @@ public class LanguageVariable {
 		Structure structure = contentlet.getStructure();
 		return structure.getVelocityVarName().equals(Configuration.getStructureVelocityVarName());
 	}
-	
 	
 	public String getKey() {
 		return contentlet.getStringProperty(Configuration.getStructureKeyField());
@@ -44,7 +45,7 @@ public class LanguageVariable {
 		return contentlet.getStringProperty(Configuration.getStructureValueField());		
 	}
 	
-	public boolean hasTheSameKeyLanguaegAndHost(LanguageVariable languageVariable) {
+	public boolean hasTheSameKeyLanguageAndHost(LanguageVariableContentlet languageVariable) {
 		return languageVariable.getKey().equals(getKey()) &&
 				languageVariable.getHostIdentifier().equals(getHostIdentifier()) &&
 				languageVariable.getLanguageId() == getLanguageId();

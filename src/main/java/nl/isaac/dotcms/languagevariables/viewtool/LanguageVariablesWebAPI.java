@@ -1,19 +1,21 @@
 package nl.isaac.dotcms.languagevariables.viewtool;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import nl.isaac.dotcms.languagevariables.cache.LanguageListCacheGroupHandler;
-import nl.isaac.dotcms.languagevariables.languageservice.LanguageVariablesAPI;
-import nl.isaac.dotcms.languagevariables.util.Configuration;
-
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ViewTool;
 
-import com.dotmarketing.business.APILocator;
+import com.dotmarketing.portlets.structure.factories.StructureFactory;
+import com.dotmarketing.portlets.structure.model.Structure;
 import com.dotmarketing.util.Logger;
-import com.dotmarketing.util.UtilMethods;
+
+import nl.isaac.dotcms.languagevariables.languageservice.LanguageVariablesAPI;
+import nl.isaac.dotcms.languagevariables.util.Configuration;
+import nl.isaac.dotcms.languagevariables.util.LanguageVariablesUtil;
 
 /**
  *
@@ -22,97 +24,61 @@ import com.dotmarketing.util.UtilMethods;
  */
 public class LanguageVariablesWebAPI implements ViewTool {
 	
-	private HttpServletRequest request;
-
+	private LanguageVariablesUtil util;
+	
 	@Override
 	public void init(Object obj) {
-		ViewContext context = (ViewContext) obj;
-		this.request = context.getRequest();
+		this.util = new LanguageVariablesUtil(((ViewContext) obj));
 	}
-
-	/**
-	 * 
-	 * @param key
-	 * @return 	The value of the key in the current language. If there is no current language 
-	 * 			defined, the default language will be used. Note that when a certain request 
-	 * 			variable is set, only the key will be returned for debugging purposes.
-	 * 
-	 */
+	
 	public String get(String key) {
-		try {
-			if(shouldReturnKey()) {
-				return key;
-			} else {
-				String language = (String) request.getSession().getAttribute(com.dotmarketing.util.WebKeys.HTMLPAGE_LANGUAGE);
-				
-				if (language == null) {
-					language = String.valueOf(APILocator.getLanguageAPI().getDefaultLanguage().getId());
-				}
-				
-				return get(key, language);
-			}
-		} catch (Throwable t) {
-			Logger.error(this, "De oorzaak", t);
-			throw new RuntimeException(t);
-		}
+		return util.get(key);
 	}
 
-	/**
-	 * 
-	 * @param key
-	 * @param languageId
-	 * @return The value of the key in the given language. Note that when a certain request 
-	 * 			variable is set, only the key will be returned for debugging purposes.
-	 */
 	public String get(String key, String languageId) {
-		if(shouldReturnKey()) {
-			return key;
-		} else {
-			LanguageVariablesAPI languageVariablesAPI = new LanguageVariablesAPI(request);
-			String value = languageVariablesAPI.getValue(key);
-			
-			return (value == null) ? addKeyToCacheAndReturnKey(key, languageId) : value;
-		}
+		return util.get(key, languageId);
 	}
 	
-	/**
-	 * Add key without value to a cache list per language, so it can be displayed on the portlet
-	 * @param key
-	 * @param languageId
-	 * @return Key or a replacement from the configuration file
-	 */
-	@SuppressWarnings("unchecked")
-	private String addKeyToCacheAndReturnKey(String key, String languageId) {
-		List<String> keyList = (List<String>) LanguageListCacheGroupHandler.getInstance().get(Configuration.CacheListKeysWithoutValue + languageId);
-		
-		if(!keyList.contains(key)) {
-			keyList.add(key);
-		}
-		
-		//If true show key otherwise get the replacement value from the configuration file
-		if(!Configuration.isValueOfKeyEmptyShowKey()) {
-			if(Configuration.isReplacementValueAnEmptyString()) {
-				key = "";
-			} else {
-				key = Configuration.getReplacementValueIfValueIsEmpty();				
-			}
-		}
-		
-		return key;
-	}
-	
-	/**
-	 * Get cache list per language for the portlet
-	 * @param languageId
-	 * @return List with keys
-	 */
-	@SuppressWarnings("unchecked")
 	public List<String> getKeysWithoutValue(String languageId) {
-		List<String> keyList = (List<String>) LanguageListCacheGroupHandler.getInstance().get(Configuration.CacheListKeysWithoutValue + languageId);
-		return keyList;
+		return util.getKeysWithoutValue(languageId);
 	}
 	
-	private boolean shouldReturnKey() {
-		return UtilMethods.isSet(request.getParameter(Configuration.getDisplayKeysParameterName()));
+	public String getLanguageVariableContentletURL(HttpServletRequest request, String key, String languageId, String referer) {
+		LanguageVariablesAPI languageVariablesAPI = new LanguageVariablesAPI(request);
+		try {
+			return languageVariablesAPI.getLanguageVariableContentletURL(key, languageId, URLEncoder.encode(referer, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			Logger.warn(this, "Error occured while encoding referer URL", e);
+		}
+		return null;
+	}
+	
+	public Structure testStuctureExists() {
+		Structure structure = 
+				StructureFactory
+				.getStructures()
+				.stream()
+				.filter((s) -> Configuration.getStructureVelocityVarName().equalsIgnoreCase(s.getVelocityVarName()))
+				.findFirst()
+				.orElse(null);
+		
+		return structure;
+	}
+	
+	// Used in the monitoringservlet to test the basic functionality
+	public String testLanguageVariable() {
+		if (testStuctureExists() == null) {
+			return null;
+		}
+		
+		// Non-existing language variable key
+		final String nonExistingLanguageKey = "123a-non-existing-key456";
+		
+		String languageValue = util.get(nonExistingLanguageKey);
+		if (nonExistingLanguageKey.equals(languageValue)) {
+			return nonExistingLanguageKey;
+		}
+		
+		return null;
 	}
 }

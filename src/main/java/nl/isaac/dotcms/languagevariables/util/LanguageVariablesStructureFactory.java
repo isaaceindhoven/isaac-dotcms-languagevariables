@@ -1,7 +1,9 @@
 package nl.isaac.dotcms.languagevariables.util;
 
+import com.dotmarketing.cache.ContentTypeCacheImpl;
+
 /**
-* dotCMS Twitter plugin by ISAAC - The Full Service Internet Agency is licensed 
+* dotCMS Language Variables plugin by ISAAC - The Full Service Internet Agency is licensed 
 * under a Creative Commons Attribution 3.0 Unported License
 * - http://creativecommons.org/licenses/by/3.0/
 * - http://www.geekyplugins.com/
@@ -10,7 +12,6 @@ package nl.isaac.dotcms.languagevariables.util;
 */
 
 import com.dotmarketing.cache.FieldsCache;
-import com.dotmarketing.cache.StructureCache;
 import com.dotmarketing.exception.DotHibernateException;
 import com.dotmarketing.portlets.structure.factories.FieldFactory;
 import com.dotmarketing.portlets.structure.factories.StructureFactory;
@@ -27,7 +28,6 @@ import com.dotmarketing.util.UtilMethods;
  *
  */
 public class LanguageVariablesStructureFactory {
-	
 	
 	public static void createStructureIfUnavailable() {
 		if(!structureExists()) {
@@ -49,7 +49,7 @@ public class LanguageVariablesStructureFactory {
 		structure.setName("Language Variables");
 		structure.setStructureType(Structure.STRUCTURE_TYPE_CONTENT);
 		structure.setHost("SYSTEM_HOST");
-		
+
 		try {
 			StructureFactory.saveStructure(structure);
 
@@ -68,8 +68,10 @@ public class LanguageVariablesStructureFactory {
 			
 			Logger.info(LanguageVariablesStructureFactory.class, "Add field: " + key.getFieldName());
 			FieldFactory.saveField(key);
+			
 			Logger.info(LanguageVariablesStructureFactory.class, "Add field: " + value.getFieldName());
 			FieldFactory.saveField(value);
+			
 			Logger.info(LanguageVariablesStructureFactory.class, "Add field: " + host.getFieldName());
 			FieldFactory.saveField(host);
 		} catch (DotHibernateException e) {
@@ -79,12 +81,17 @@ public class LanguageVariablesStructureFactory {
 		
 		// Update the cache
 		FieldsCache.removeFields(structure); 
-		StructureCache.removeStructure(structure); 
+
+		ContentTypeCacheImpl contentTypeCache = new ContentTypeCacheImpl();
+		contentTypeCache.remove(structure);
+		
 		try {
 			StructureFactory.saveStructure(structure);
 		} catch (DotHibernateException e) {
 			throw new RuntimeException(e.toString(), e);
 		} 
+		
 		FieldsCache.addFields(structure, structure.getFieldsBySortOrder());
 	}
+	
 }

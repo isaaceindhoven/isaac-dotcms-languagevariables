@@ -1,8 +1,5 @@
 package nl.isaac.dotcms.languagevariables.cache;
 
-
-
-
 public class LanguageVariablesCacheGroupHandler extends CacheGroupHandler<String> {
 	
 	public static final String GROUP_NAME = "LANGUAGE_VARIABLES";

@@ -1,7 +1,11 @@
 package nl.isaac.dotcms.languagevariables.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
@@ -23,8 +27,10 @@ import com.dotmarketing.viewtools.content.util.ContentUtils;
  *
  */
 public class ContentletQuery {
+	
 	protected StringBuilder query = new StringBuilder();
 	private String structureName;
+	private final Map<String, String> exactFieldLimitations = new HashMap<String, String>();
 	
 	// Paging & sorting
 	private boolean usePaging = false;
@@ -53,7 +59,21 @@ public class ContentletQuery {
 	 * @param value The value to search for
 	 */
 	public void addFieldLimitation(boolean include, String name, String value) {
-		query.append(" " + (include ? "+" : "-") + structureName + "." + name + ":" + escapeValue(value));
+		query.append(" " + (include ? "+" : "-"));
+		addFieldLimitationString(name, value);
+	}
+	
+	public void addExactFieldLimitation(boolean include, String name, String value) {
+		exactFieldLimitations.put(name,  value);
+		addFieldLimitation(include, name, value);
+	}
+	
+	private void addFieldLimitationString(String name, String value) {
+		if(value.contains("*")) {
+			query.append(structureName + "." + name + ":" + escapeValue(value) + " ");
+		} else {
+			query.append(structureName + "." + name + ":\"" + escapeValue(value) + "\" ");
+		}
 	}
 	
 	/**
@@ -65,7 +85,15 @@ public class ContentletQuery {
 	public void addFieldLimitations(boolean include, String name, String... values) {
 		query.append(" " + (include ? "+" : "-") + "(");
 		for(String value: values) {
-			query.append(structureName + "." + name + ":" + escapeValue(value) + " ");
+			addFieldLimitationString(name, value);
+		}
+		query.append(")");
+	}
+	
+	public void addIdentifierLimitations(boolean include, String... identifiers) {
+		query.append(" " + (include ? "+" : "-") + "(");
+		for(String identifier : identifiers) {
+			query.append("identifier:" + escapeValue(identifier) + " ");
 		}
 		query.append(")");
 	}
@@ -81,12 +109,15 @@ public class ContentletQuery {
 	}
 	
 	private String escapeValue(String value) {
-		return value.replace(":", "\\:");
+		return value.replace(":", "\\:").replace("\"", "\\\"");
 	}
 	
 	public void addLatestLiveAndNotDeleted(boolean live) {
-		addLive(live);
-		addWorking(true);
+		if (live) {
+			addLive(true);			
+		} else {
+			addWorking(true);			
+		}
 		addDeleted(false);
 	}
 
@@ -191,7 +222,7 @@ public class ContentletQuery {
 		ParamValidationUtil.validateParamNotNull(pageSize, "pageSize");
 		ParamValidationUtil.validateParamNotNull(pageIndex, "pageIndex");
 		
-		int offset = 1 + (pageIndex - 1) * pageSize;
+		int offset = pageIndex * pageSize;
 		
 		this.offset = offset;
 		this.limit = pageSize;
@@ -202,11 +233,13 @@ public class ContentletQuery {
 	 * Adds sorting to the query
 	 * @param fieldName the field to sort on. Must be in the format [structure name].[field name]
 	 */
-	public void addSorting(String fieldName, boolean asc) {
+	public void addSorting(String structureName, String fieldName, boolean asc) {
 		ParamValidationUtil.validateParamNotNull(fieldName, "sortBy");
 		
-		String sorting = structureName + "." + fieldName + " " + (asc ? "asc" : "desc");
-		this.sortBy = UtilMethods.isSet(this.sortBy)? this.sortBy + ", " + sorting : sorting;			
+		String sorting = "modDate".equals(fieldName) ? fieldName : structureName + "." + fieldName;
+		String sortingWithOrder = sorting + " " + (asc ? "asc" : "desc");
+		
+		this.sortBy = UtilMethods.isSet(this.sortBy)? this.sortBy + ", " + sortingWithOrder : sortingWithOrder;			
 	}
 	
 	/**
@@ -260,23 +293,47 @@ public class ContentletQuery {
 		return query;
 	}
 	
+	public Map<String, String> getExactFieldLimitations() {
+		return Collections.unmodifiableMap(exactFieldLimitations);
+	}
+	
 	/**
 	 * Executes the query
 	 * @return The resulting List of Contentlets
 	 */
 	public List<Contentlet> executeSafe() {
+		
+		Logger.debug(this, "Executing query: " + query.toString());
+		Logger.debug(this, "Use Paging: " + this.usePaging + ", Limit: " + this.limit + ", Offset: " + this.offset + ", Sort By: " + this.sortBy);
+		
 		try {
 			if(this.usePaging) {
+				if(!exactFieldLimitations.isEmpty()) {
+					Logger.warn(this, "Can't use exact matching in paginated search");
+				}
+
 				PaginatedArrayList<Contentlet> contentlets = ContentUtils.pullPagenated(query.toString(), this.limit, this.offset, this.sortBy, APILocator.getUserAPI().getSystemUser(), null);
 				this.totalResults = contentlets.getTotalResults();
+				
+				Logger.debug(this, "Number Of Results: " + contentlets.size() + ", Total Results: " + contentlets.getTotalResults());
+				
 				return contentlets;
 			} else {
-				return APILocator.getContentletAPI().search(query.toString(), this.limit, this.offset, this.sortBy, APILocator.getUserAPI().getSystemUser(), false);
+				List<Contentlet> contentlets = APILocator.getContentletAPI().search(query.toString(), this.limit, this.offset, this.sortBy, APILocator.getUserAPI().getSystemUser(), false);
+				contentlets = removeNonExactMatches(contentlets);
+				
+				if (Logger.isDebugEnabled(this.getClass())) {
+					if (contentlets == null) {
+						Logger.debug(this, "Contentlets == null");
+					} else {
+						Logger.debug(this, "Number Of Results: " + contentlets.size());
+					}
+				}
+				
+				return contentlets;
 			}
 			
-		} catch (DotDataException e) {
-			Logger.warn(this, "Exception while executing query", e);
-		} catch (DotSecurityException e) {
+		} catch (DotDataException | DotSecurityException e) {
 			Logger.warn(this, "Exception while executing query", e);
 		}
 		
@@ -301,8 +358,59 @@ public class ContentletQuery {
 			query.append(")");
 		}
 	}
-	@Override
-	public String toString() {
-		return getQuery();
+	
+	/**
+	 * Executes the query and returns the first result. Can be used when you
+	 * are sure that the query returns exactly one result, for instance when
+	 * the query contains an identifier limitation or when the limit is set
+	 * to 1.
+	 *
+	 * @return The resulting Contentlet, null if the query has no result
+	 */
+	public Contentlet executeSafeFirst() {
+		List<Contentlet> result = executeSafe();
+
+		if (result.size() > 0) {
+			return result.get(0);
+		}
+
+		return null;
 	}
+	
+	public Contentlet executeSafeSingle() {
+		List<Contentlet> result = executeSafe();
+
+		if (result.size() == 1) {
+			return result.get(0);
+		} else {
+			Logger.warn(this, "Expected 1 result but found " + result.size() + ". Returning null");
+		}
+
+		return null;
+	}
+
+	/**
+	 * Remove contentlets that do not exactly match the key-values in exactFieldLimitations
+	 * These are added by executing the addExactFieldLimitation method.
+	 * When there are no exact field limitations then the entered contentlet list is returned
+	 */
+	private List<Contentlet> removeNonExactMatches(List<Contentlet> contentlets) {
+		if(exactFieldLimitations.isEmpty()) {
+			return contentlets;
+		} else {
+			List<Contentlet> correctMatches = new ArrayList<Contentlet>();
+			for(Contentlet contentlet: contentlets) {
+				for(Entry<String, String> fieldLimitation: exactFieldLimitations.entrySet()) {
+					// do not use contentlet.getStringProperty, since that only handles long and string values (not booleans)
+					Object fieldValue = contentlet.get(fieldLimitation.getKey());
+					if(fieldValue != null && fieldValue.toString().equalsIgnoreCase(fieldLimitation.getValue())) {
+						correctMatches.add(contentlet);
+					}
+				}
+			}
+
+			return correctMatches;
+		}
+	}
+	
 }

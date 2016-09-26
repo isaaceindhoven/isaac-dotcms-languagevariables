@@ -1,3 +1,5 @@
+#set($currentURL = "/c/portal/layout?$request.getQueryString()")
+
 <div id="languageKeyList">
 	<table class="listingTable shadowBox">
 		<tbody>
@@ -34,18 +36,21 @@
 								<tr>
 									<th style="white-space:nowrap; width:24px;">#</th>
 									<th style="white-space:nowrap;">Keys</th>
+									<th style="white-space:nowrap; width:24px;">Actions</th>
 								</tr>
 								
 								#set($keyWithoutValueList = $languageVariables.getKeysWithoutValue("$languageObject.getId()"))
 								#foreach($keyWithoutValue in $keyWithoutValueList)
-								 
-							
 									<tr>
 										<td>
 											<img src="$languageLocale">
 										</td>
 										<td>
 											<p>$keyWithoutValue</p>
+										</td>
+										<td>
+											#set($url = $languageVariables.getLanguageVariableContentletURL($request, $!{keyWithoutValue}, "$!{languageObject.getId()}", $!{currentURL}))
+											<a href="$!{url}">Add</a>
 										</td>
 									</tr>
 								#end
@@ -81,5 +86,3 @@
 	</script>
 	#set($dummy = $request.getSession().removeAttribute("languagevariables_flush_status"))
 #end
-											
-						
