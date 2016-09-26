@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<portlet-app>
+<!-- 	<portlet> -->
+<!-- 		<portlet-name>EXT_LANGUAGE_VARIABLES</portlet-name> -->
+<!-- 		<display-name>Language Variables</display-name> -->
+<!-- 		<portlet-class>com.liferay.portlet.JSPPortlet</portlet-class> -->
+<!-- 		<init-param> -->
+<!-- 			<name>view-jsp</name> -->
+<!-- 			<value>/ext/language_variables.jsp</value> -->
+<!-- 		</init-param> -->
+<!-- 		<expiration-cache>0</expiration-cache> -->
+<!-- 		<supports> -->
+<!-- 			<mime-type>text/html</mime-type> -->
+<!-- 		</supports> -->
+<!-- 	</portlet> -->
+
+	<portlet>
+		<portlet-name>EXT_LANGUAGE_VARIABLES_KEYS_WITHOUT_VALUE</portlet-name>
+		<display-name>Language Variables Without Value</display-name>
+		<portlet-class>com.liferay.portlet.VelocityPortlet</portlet-class>
+		<init-param>
+				<name>view-template</name>
+				<value>/ext/keys_without_value.vm</value>
+		</init-param>
+		<expiration-cache>0</expiration-cache>
+		<supports>
+			<mime-type>text/html</mime-type>
+		</supports>
+		<resource-bundle>com.liferay.portlet.StrutsResourceBundle</resource-bundle>
+		<security-role-ref>
+			<role-name>CMS User</role-name>
+		</security-role-ref>
+	</portlet>
+</portlet-app>

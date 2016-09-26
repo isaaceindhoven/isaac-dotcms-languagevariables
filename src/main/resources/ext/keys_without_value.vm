@@ -1,0 +1,85 @@
+<div id="languageKeyList">
+	<table class="listingTable shadowBox">
+		<tbody>
+			<tr>
+				<th style="white-space:nowrap;">Language Variables - Keys without values</th>
+				<th style="white-space:nowrap;">Flush Cache for keys without value</th>		
+			</tr>
+			<tr>
+				<td>
+					<p>On this page you will find the language keys without a filled value. The language keys without a value will only be available in the list when they are requested on one of the pages. Below this text are the list(s) with language keys sorted by the different languages. The list can be cleared by clicking on the flush button.</p>
+				</td>
+				<td class="buttonColumn">
+
+					<form method="post" action="/app/servlets/languagevariables/portlet/flush/" id="languagevariables_without_value">
+						<input type="hidden" name="referer" value="/c/portal/layout?${request.QueryString}" />
+					</form>
+					<button dojoType="dijit.form.Button" onClick="dojo.byId('languagevariables_without_value').submit()" iconClass="resetIcon">
+						Flush Cache
+					</button>
+
+				</td>
+			</tr>
+			
+			<tr>
+				<td colspan="2">
+				
+					#set($languages = $languageWebAPI.getLanguages())
+					#foreach($languageObject in $languages)
+						#set($languageLocale = "/html/images/languages/" + $languageObject.getLanguageCode() + "_" + $languageObject.getCountryCode() + ".gif")
+						
+						<h1>Language: $languageObject.getLanguage(), $languageObject.getCountry()</h1><br />
+						<table class="listingTable shadowBox">
+							<tbody>
+								<tr>
+									<th style="white-space:nowrap; width:24px;">#</th>
+									<th style="white-space:nowrap;">Keys</th>
+								</tr>
+								
+								#set($keyWithoutValueList = $languageVariables.getKeysWithoutValue("$languageObject.getId()"))
+								#foreach($keyWithoutValue in $keyWithoutValueList)
+								 
+							
+									<tr>
+										<td>
+											<img src="$languageLocale">
+										</td>
+										<td>
+											<p>$keyWithoutValue</p>
+										</td>
+									</tr>
+								#end
+								
+								#if($keyWithoutValueList.size() == 0)
+									<tr>
+										<td colspan="2">
+											All values for the used keys of this language are filled or they are still not triggered.
+										</td>
+									</tr>
+								#end
+				
+							</tbody>
+						</table>
+						<br /><br />
+					#end
+
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+#if($request.getSession().getAttribute("languagevariables_flush_status") == "true")
+	<script>
+		showDotCMSSystemMessage("<div class=\"messageIcon resolveIcon\"></div>The cache has been flushed")
+	</script>
+	#set($dummy = $request.getSession().removeAttribute("languagevariables_flush_status"))
+	
+#elseif($request.getSession().getAttribute("languagevariables_flush_status") == "false")
+	<script>
+		showDotCMSSystemMessage("<div class=\"messageIcon deleteIcon\"></div>Error while flushing the cache")
+	</script>
+	#set($dummy = $request.getSession().removeAttribute("languagevariables_flush_status"))
+#end
+											
+						

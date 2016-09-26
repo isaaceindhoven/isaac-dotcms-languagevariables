@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!DOCTYPE portlets>
+
+<portlets>
+<!-- 	<portlet id="EXT_LANGUAGE_VARIABLES" narrow="true" /> -->
+	<portlet id="EXT_LANGUAGE_VARIABLES_KEYS_WITHOUT_VALUE" narrow="true" />
+</portlets>
