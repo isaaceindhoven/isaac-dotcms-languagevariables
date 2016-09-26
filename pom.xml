@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>nl.isaac.dotcms.plugin.languagevariables</groupId>
 	<artifactId>isaac-dotcms-languagevariables</artifactId>
-	<version>2.5.3</version>
+	<version>3.2.1</version>
 	<packaging>bundle</packaging>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -52,7 +52,7 @@
 						<Bundle-Version>${project.version}</Bundle-Version>
 						<Bundle-Activator>nl.isaac.dotcms.languagevariables.osgi.LanguageVariablesActivator</Bundle-Activator>
 						<Export-Package>nl.isaac.dotcms.languagevariables.languageservice</Export-Package>
-						<Import-Package>org.osgi.framework,
+						<Import-Package>com.dotcms.repackage.org.osgi.framework,
 							com.dotmarketing.osgi,
 							com.dotmarketing.beans,
 							com.dotmarketing.portlets.languagesmanager.business,
@@ -80,9 +80,15 @@
 		</dependency>
 		<dependency>
 			<groupId>com.dotcms</groupId>
-			<artifactId>dotcms-core</artifactId>
-			<version>2.5</version>
+			<artifactId>dotcms</artifactId>
+			<version>3.0.1</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.chemistry.opencmis</groupId>
+					<artifactId>chemistry-opencmis-server-bindings</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -97,27 +103,9 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.main</artifactId>
-			<version>4.2.1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.apache.felix.http.api</artifactId>
-			<version>2.2.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.felix</groupId>
-			<artifactId>org.osgi.compendium</artifactId>
-			<version>1.4.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.lucene</groupId>
-			<artifactId>lucene-core</artifactId>
-			<version>3.6.1</version>
+			<groupId>com.dotcms.lib</groupId>
+			<artifactId>dot.felix</artifactId>
+			<version>4.2.1_1</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>

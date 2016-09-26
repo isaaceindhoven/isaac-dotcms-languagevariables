@@ -28,7 +28,8 @@ import com.dotmarketing.util.UtilMethods;
  */
 public class LanguageVariablesStructureFactory {
 	
-	public static void createStructure() {
+	
+	public static void createStructureIfUnavailable() {
 		if(!structureExists()) {
 			addStructure();
 		}

@@ -2,66 +2,47 @@ package nl.isaac.dotcms.util.osgi;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.PropertyResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
-
+import com.dotcms.repackage.org.apache.commons.io.FilenameUtils;
+import com.dotcms.repackage.org.osgi.framework.Bundle;
+import com.dotcms.repackage.org.osgi.framework.FrameworkUtil;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.util.Logger;
 
 public class PropertiesManager {
-	private Boolean configurationPluginAvailable;
-	private boolean retrievedLocalProperties;
-	private final String pluginName;
+	private boolean getPropertiesFromPluginAPI;
+	private String pluginName;
 	private final Bundle bundle;
 	private Map<String, String> properties;
 	
 	public PropertiesManager() {
 		this.bundle = FrameworkUtil.getBundle(this.getClass());
-		this.pluginName = "osgi/" + bundle.getHeaders().get("Bundle-Name") + "/" + bundle.getBundleId(); 
-		this.retrievedLocalProperties = false;
-		properties = new HashMap<String, String>();
-		Logger.info(this, "Using plugin name '" + pluginName + "'");
+		this.pluginName = FilenameUtils.getBaseName(bundle.getLocation());
+		this.getPropertiesFromPluginAPI = true;
+		Logger.info(this, "Using plugin name '" + pluginName + "', use-plugin-api=" + getPropertiesFromPluginAPI);
 	}
 	
 	public String get(String key) {
-		if(isConfigurationPluginAvailable()) {
+		if(getPropertiesFromPluginAPI) {
 			try {
-				return APILocator.getPluginAPI().loadProperty(pluginName, key);
+				String value = APILocator.getPluginAPI().loadProperty(pluginName, key);
+				if (value != null) {
+					return value;
+				}
+				Logger.info(this, "Value for " + key + "=null in " + pluginName + ", so assuming the Configuration plugin is not available");
 			} catch (Exception e) {
-				throw new RuntimeException( "Can't retrieve property " + key + " in " + pluginName, e);
+				Logger.info(this, "Can't retrieve property " + key + " in " + pluginName + ", so assuming the Configuration plugin is not available");
 			}
-		}
-		
-		if(!retrievedLocalProperties) {
+			
+			getPropertiesFromPluginAPI = false;
 			Logger.info(this, "Reading properties from own properties file for plugin " + pluginName);
 			properties = getLocalProperties();
-			retrievedLocalProperties = true;
 		}
 		
 		return properties.get(key);
-	}
-	
-	/**
-	 * Check for the "environment" key in the pluginAPI
-	 */
-	private boolean isConfigurationPluginAvailable() {
-		if(configurationPluginAvailable == null) {
-			try {
-				String value = APILocator.getPluginAPI().loadProperty(pluginName, "environment");
-				configurationPluginAvailable = (value != null);
-			} catch (Exception e) {
-				Logger.warn(this, "Exception while trying to get property 'environment' ", e);
-				configurationPluginAvailable = false;
-			}
-			Logger.info(this, "Configuration plugin available: " + configurationPluginAvailable);
-		}
-		
-		return configurationPluginAvailable;
 	}
 
 	private Map<String, String> getLocalProperties() {
@@ -69,7 +50,7 @@ public class PropertiesManager {
 		try {
 			
 			// Read all the properties from the properties file
-			URL resourceURL = bundle.getResource("conf/plugin.properties");
+			URL resourceURL = bundle.getResource("ext/plugin.properties");
 			PropertyResourceBundle resourceBundle = new PropertyResourceBundle(resourceURL.openStream());
 			
 			// Put the properties in the map

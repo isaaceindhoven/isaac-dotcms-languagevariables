@@ -2,15 +2,6 @@ package nl.isaac.dotcms.languagevariables.osgi;
 
 import javax.servlet.ServletException;
 
-import org.apache.felix.http.api.ExtHttpService;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.http.NamespaceException;
-import org.osgi.util.tracker.ServiceTracker;
-
-import com.dotmarketing.filters.CMSFilter;
-import com.dotmarketing.util.Logger;
-
 import nl.isaac.dotcms.languagevariables.cache.servlet.FlushVariablesCache;
 import nl.isaac.dotcms.languagevariables.languageservice.LanguagePrefixesServlet;
 import nl.isaac.dotcms.languagevariables.util.ContentletPostHook;
@@ -18,6 +9,14 @@ import nl.isaac.dotcms.languagevariables.util.LanguageVariablesStructureFactory;
 import nl.isaac.dotcms.languagevariables.viewtool.LanguageVariablesWebAPI;
 import nl.isaac.dotcms.util.osgi.ExtendedGenericBundleActivator;
 import nl.isaac.dotcms.util.osgi.ViewToolScope;
+
+import com.dotcms.repackage.org.apache.felix.http.api.ExtHttpService;
+import com.dotcms.repackage.org.osgi.framework.BundleContext;
+import com.dotcms.repackage.org.osgi.framework.ServiceReference;
+import com.dotcms.repackage.org.osgi.service.http.NamespaceException;
+import com.dotcms.repackage.org.osgi.util.tracker.ServiceTracker;
+import com.dotmarketing.filters.CMSFilter;
+import com.dotmarketing.util.Logger;
 
 public class LanguageVariablesActivator extends ExtendedGenericBundleActivator {
 
@@ -27,10 +26,9 @@ public class LanguageVariablesActivator extends ExtendedGenericBundleActivator {
 
 	@Override
 	public void start(BundleContext context) throws Exception {
-
 		// Default DotCMS call
 		initializeServices(context);
-
+		
 		// Add the viewtools
 		addViewTool(context,  LanguageVariablesWebAPI.class, "languageVariables", ViewToolScope.REQUEST);
 
@@ -41,13 +39,13 @@ public class LanguageVariablesActivator extends ExtendedGenericBundleActivator {
 		registerServlets(context);
 
 		// Register language variables (portlet name)
-		registerLanguageVariables(context);
+		addLanguageVariables(context);
 
 		// Register hook
 		addPostHook(new ContentletPostHook());
 
 		// Create the Language Variables structure, if it doesn't exist already
-		LanguageVariablesStructureFactory.createStructure();
+		LanguageVariablesStructureFactory.createStructureIfUnavailable();
 	}
 
 
