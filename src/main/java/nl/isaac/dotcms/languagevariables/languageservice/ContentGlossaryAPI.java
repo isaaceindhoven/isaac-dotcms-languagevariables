@@ -9,24 +9,22 @@ import nl.isaac.dotcms.languagevariables.cache.LanguageVariableCacheKey;
 import nl.isaac.dotcms.languagevariables.cache.LanguageVariablesCacheGroupHandler;
 import nl.isaac.dotcms.languagevariables.util.Configuration;
 import nl.isaac.dotcms.languagevariables.util.ContentletQuery;
-import nl.isaac.dotcms.languagevariables.util.LanguageVariable;
-import nl.isaac.dotcms.languagevariables.util.LanguageVariableFactory;
 import nl.isaac.dotcms.languagevariables.util.RequestUtil;
 
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.util.UtilMethods;
 
-public class LanguageVariablesAPI {
+public class ContentGlossaryAPI {
 	
 	private final String languageId;
 	private final String hostIdentifier;
 	private final boolean live;
 	
-	public LanguageVariablesAPI(HttpServletRequest request) {
+	public ContentGlossaryAPI(HttpServletRequest request) {
 		this(new RequestUtil(request).getLanguage(), new RequestUtil(request).getCurrentHost().getIdentifier(), new RequestUtil(request).isLiveMode());
 	}
 
-	public LanguageVariablesAPI(String languageId, String hostIdentifier, boolean live) {
+	public ContentGlossaryAPI(String languageId, String hostIdentifier, boolean live) {
 		this.languageId = languageId;
 		this.hostIdentifier = hostIdentifier;
 		this.live = live;
@@ -44,28 +42,28 @@ public class LanguageVariablesAPI {
 	public List<KeyValuePair<String, String>> getKeysWithPrefixes(List<String> prefixes) {
 		List<KeyValuePair<String, String>> keyValuePairs = new ArrayList<KeyValuePair<String, String>>();
 		
-		List<LanguageVariable> results = new ArrayList<LanguageVariable>();
+		List<Contentlet> results = new ArrayList<Contentlet>();
 		
 		for(String prefix : prefixes) {
 			
 			// prevent searching for '*' if an empty prefix is given
 			if(UtilMethods.isSet(prefix)) {
-				results.addAll(getLanguageVariablesWithKey(prefix + "*"));
+				results.addAll(getContentletsWithKey(prefix + "*"));
 			}
 		}
 		
 		//convert them to key-value pairs
-		for(LanguageVariable languageVariable: results) {
+		for(Contentlet contentlet: results) {
 			KeyValuePair<String, String> keyValuePair = new KeyValuePair<String, String>(
-					languageVariable.getKey(), 
-					languageVariable.getValue());
+					contentlet.getStringProperty(Configuration.getStructureKeyField()), 
+					contentlet.getStringProperty(Configuration.getStructureValueField()));
 			keyValuePairs.add(keyValuePair);
 		}
 		
 		return keyValuePairs;
 	}
 
-	public List<LanguageVariable> getLanguageVariablesWithKey(String key) {
+	public List<Contentlet> getContentletsWithKey(String key) {
 		//retrieve all the contentlets with the prefix
 		ContentletQuery contentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
 		contentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
@@ -79,6 +77,6 @@ public class LanguageVariablesAPI {
 		}
 		
 		List<Contentlet> results = contentletQuery.executeSafe();
-		return LanguageVariableFactory.getLanguageVariablesFromList(results);
+		return results;
 	}
 }

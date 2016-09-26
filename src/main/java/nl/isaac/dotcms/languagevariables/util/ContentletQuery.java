@@ -301,8 +301,4 @@ public class ContentletQuery {
 			query.append(")");
 		}
 	}
-	@Override
-	public String toString() {
-		return getQuery();
-	}
 }

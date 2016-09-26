@@ -26,7 +26,7 @@ public class LanguagePrefixesServlet extends HttpServlet {
 		if(UtilMethods.isSet(prefix)) {
 		
 			//retrieve the key-value pairs
-			LanguageVariablesAPI contentGlossaryAPI = new LanguageVariablesAPI(request);
+			ContentGlossaryAPI contentGlossaryAPI = new ContentGlossaryAPI(request);
 			
 			List<String> prefixes = Arrays.asList(prefix.split(","));
 			
@@ -38,12 +38,12 @@ public class LanguagePrefixesServlet extends HttpServlet {
 				String value = keyValuePair.getValue();
 				
 				if (key == null) {
-					Logger.warn(this, "Encountered null key, skip it...");
+					Logger.error(this, "Encountered null key, skip it...");
 					continue;
 				}
 				
 				if (value == null) {
-					Logger.debug(this, "Encountered null value, replace it with an empty String...");
+					Logger.warn(this, "Encountered null value for key " + key + ", replace it with an empty String...");
 					value = "";
 				}
 				
