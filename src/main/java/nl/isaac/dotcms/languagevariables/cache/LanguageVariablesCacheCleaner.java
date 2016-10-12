@@ -2,7 +2,7 @@ package nl.isaac.dotcms.languagevariables.cache;
 
 public class LanguageVariablesCacheCleaner {
 
-	public static void flush(String propertyKey, String hostIdentifier, String languageId) {
+	public static void flush(String propertyKey, String hostIdentifier, String languageId, String contentletIdentifier) {
 		LanguageVariableCacheKey liveCacheKey = new LanguageVariableCacheKey(propertyKey, languageId, hostIdentifier, true);
 		LanguageVariableCacheKey workingCacheKey = new LanguageVariableCacheKey(propertyKey, languageId, hostIdentifier, false);
 		

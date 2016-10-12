@@ -5,6 +5,7 @@ import com.dotcms.repackage.org.osgi.framework.BundleContext;
 import nl.isaac.dotcms.languagevariables.cache.servlet.FlushVariablesCache;
 import nl.isaac.dotcms.languagevariables.languageservice.LanguagePrefixesServlet;
 import nl.isaac.dotcms.languagevariables.util.ContentletPostHook;
+import nl.isaac.dotcms.languagevariables.util.ContentletPreHook;
 import nl.isaac.dotcms.languagevariables.util.LanguageVariablesStructureFactory;
 import nl.isaac.dotcms.languagevariables.viewtool.LanguageVariablesWebAPI;
 import nl.isaac.dotcms.util.osgi.ExtendedGenericBundleActivator;
@@ -29,8 +30,11 @@ public class LanguageVariablesActivator extends ExtendedGenericBundleActivator {
 		
 		// Register language variables (portlet name)
 		addLanguageVariables(context);
+		
+		// Register PreHook
+		addPreHook(new ContentletPreHook());
 
-		// Register hook
+		// Register PostHook
 		addPostHook(new ContentletPostHook());
 
 		// Create the Language Variables structure, if it doesn't exist already

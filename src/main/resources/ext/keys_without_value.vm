@@ -34,30 +34,58 @@
 						<table class="listingTable shadowBox">
 							<tbody>
 								<tr>
-									<th style="white-space:nowrap; width:24px;">#</th>
-									<th style="white-space:nowrap;">Keys</th>
-									<th style="white-space:nowrap; width:24px;">Actions</th>
+									<th style="white-space:nowrap; width:5px;">Status</th>
+									<th style="white-space:nowrap; width:5px;">Language</th>
+									<th style="white-space:nowrap;">Key</th>
+									<th style="white-space:nowrap; width:95px;">Action</th>
 								</tr>
 								
-								#set($keyWithoutValueList = $languageVariables.getKeysWithoutValue("$languageObject.getId()"))
-								#foreach($keyWithoutValue in $keyWithoutValueList)
+								#set($keyWithoutValueList = $languageVariables.getKeysWithoutValue("$languageObject.getId()", $currentURL))
+								#foreach($incompleteLanguageVariable in $keyWithoutValueList)
 									<tr>
-										<td>
+										<td style="text-align:center;">
+										#if($incompleteLanguageVariable.status == "UNPUBLISHED")
+											<div title="Unpublished">
+												<span class="workingIcon"></span>
+												<span class="greyDotIcon" style="opacity:.4"></span>
+											</div>
+										#elseif($incompleteLanguageVariable.status == "ARCHIVED")
+											<div title="Archived">
+												<span class="greyDotIcon" style="opacity:.4"></span><span class="archivedIcon"></span>
+											</div>
+										#elseif($incompleteLanguageVariable.status == "MISSING")
+											<div title="Missing in current language">
+												<span>Missing</span>
+											</div>
+										#elseif($incompleteLanguageVariable.status == "NOT_FOUND")
+											<div title="Doesn't exists">
+												<span>New</span>
+											</div>
+										#end
+										</td>
+										<td style="text-align:center;">
 											<img src="$languageLocale">
 										</td>
 										<td>
-											<p>$keyWithoutValue</p>
+											#if($incompleteLanguageVariable.status == "UNPUBLISHED" || $incompleteLanguageVariable.status == "ARCHIVED")
+												<a href="$!{incompleteLanguageVariable.action.url}">$incompleteLanguageVariable.keyName</a>
+											#else
+												$incompleteLanguageVariable.keyName
+											#end
 										</td>
 										<td>
-											#set($url = $languageVariables.getLanguageVariableContentletURL($request, $!{keyWithoutValue}, "$!{languageObject.getId()}", $!{currentURL}))
-											<a href="$!{url}">Add</a>
+											#if($incompleteLanguageVariable.status == "MISSING" || $incompleteLanguageVariable.status == "NOT_FOUND")
+											<button dojoType="dijit.form.Button" onclick="location.href = '$!{incompleteLanguageVariable.action.url}'; return false;">
+												$!{incompleteLanguageVariable.action.text}
+											</button>
+											#end
 										</td>
 									</tr>
 								#end
 								
 								#if($keyWithoutValueList.size() == 0)
 									<tr>
-										<td colspan="2">
+										<td colspan="4">
 											All values for the used keys of this language are filled or they are still not triggered.
 										</td>
 									</tr>

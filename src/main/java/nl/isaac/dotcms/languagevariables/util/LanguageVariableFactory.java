@@ -36,7 +36,7 @@ public class LanguageVariableFactory {
 		return null;
 	}
 	
-	private static List<Contentlet> getContentletVersions(Contentlet newContentlet, User user, boolean respectFrontendRoles) {
+	public static List<Contentlet> getContentletVersions(Contentlet newContentlet, User user, boolean respectFrontendRoles) {
 		if(UtilMethods.isSet(newContentlet.getIdentifier())) {
 			try {
 					Identifier identifier = APILocator.getIdentifierAPI().find(newContentlet.getIdentifier());

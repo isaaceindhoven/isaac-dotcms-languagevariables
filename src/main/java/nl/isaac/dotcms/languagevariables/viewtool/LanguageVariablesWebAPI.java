@@ -4,8 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ViewTool;
 
@@ -13,7 +11,7 @@ import com.dotmarketing.portlets.structure.factories.StructureFactory;
 import com.dotmarketing.portlets.structure.model.Structure;
 import com.dotmarketing.util.Logger;
 
-import nl.isaac.dotcms.languagevariables.languageservice.LanguageVariablesAPI;
+import nl.isaac.dotcms.languagevariables.languageservice.IncompleteLanguageVariable;
 import nl.isaac.dotcms.languagevariables.util.Configuration;
 import nl.isaac.dotcms.languagevariables.util.LanguageVariablesUtil;
 
@@ -39,16 +37,11 @@ public class LanguageVariablesWebAPI implements ViewTool {
 		return util.get(key, languageId);
 	}
 	
-	public List<String> getKeysWithoutValue(String languageId) {
-		return util.getKeysWithoutValue(languageId);
-	}
-	
-	public String getLanguageVariableContentletURL(HttpServletRequest request, String key, String languageId, String referer) {
-		LanguageVariablesAPI languageVariablesAPI = new LanguageVariablesAPI(request);
+	public List<IncompleteLanguageVariable> getKeysWithoutValue(String languageId, String referer) {
 		try {
-			return languageVariablesAPI.getLanguageVariableContentletURL(key, languageId, URLEncoder.encode(referer, "UTF-8"));
+			return util.getKeysWithoutValue(languageId, URLEncoder.encode(referer, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			Logger.warn(this, "Error occured while encoding referer URL", e);
+			Logger.info(this, "Error occured while encoding referer URL: " + e.getMessage());
 		}
 		return null;
 	}

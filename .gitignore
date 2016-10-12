@@ -5,3 +5,4 @@
 .factorypath
 .project
 !org.eclipse.wst.validation.prefs
+/target/

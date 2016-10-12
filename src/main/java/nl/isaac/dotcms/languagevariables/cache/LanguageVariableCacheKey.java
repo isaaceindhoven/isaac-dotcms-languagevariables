@@ -13,17 +13,28 @@ public class LanguageVariableCacheKey {
 	private final String languageId;
 	private final String hostId;
 	private final Boolean live;
+	private final String contentletIdentifier;
 	
 	public LanguageVariableCacheKey(String propertyKey, String languageId, String hostId, boolean live) {
 		this.propertyKey = propertyKey;
 		this.languageId = languageId;
 		this.hostId = hostId;
 		this.live = live;
+		this.contentletIdentifier = null;
+	}
+	
+	public LanguageVariableCacheKey(String propertyKey, String languageId, String hostId, boolean live, String contentletIdentifier) {
+		this.propertyKey = propertyKey;
+		this.languageId = languageId;
+		this.hostId = hostId;
+		this.live = live;
+		this.contentletIdentifier = contentletIdentifier;
 	}
 
 	public static LanguageVariableCacheKey createInstanceWithKey(String key) {
 		String[] parts = key.split(SEPARATOR);  
-		if(parts.length != 4) {
+		// length can be 5 if contentletIdentifier is set
+		if(parts.length != 4 || parts.length != 5) {
 			throw new RuntimeException("Illegal key: " + key);
 		}
 		return new LanguageVariableCacheKey(parts[0], parts[1], parts[2], Boolean.valueOf(parts[3]));
@@ -44,13 +55,17 @@ public class LanguageVariableCacheKey {
 	public Boolean getLive() {
 		return live;
 	}
+	
+	public String getContentletIdentifier() {
+		return contentletIdentifier;
+	}
 
 	public String getKey() {
 		return propertyKey + SEPARATOR + languageId + SEPARATOR + hostId + SEPARATOR + live;		
 	}
 	
 	public String getReadableString() {
-		return propertyKey + " - " + languageId + " - " + hostId + " - " + live;		
+		return propertyKey + " - " + languageId + " - " + hostId + " - " + live;	
 	}
 
 	public boolean equals(Object obj) {

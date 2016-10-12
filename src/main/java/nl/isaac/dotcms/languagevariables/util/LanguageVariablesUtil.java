@@ -1,5 +1,6 @@
 package nl.isaac.dotcms.languagevariables.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -8,10 +9,13 @@ import org.apache.velocity.tools.generic.RenderTool;
 import org.apache.velocity.tools.view.context.ViewContext;
 
 import com.dotmarketing.business.APILocator;
+import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 
 import nl.isaac.dotcms.languagevariables.cache.LanguageListCacheGroupHandler;
+import nl.isaac.dotcms.languagevariables.cache.LanguageVariableCacheKey;
+import nl.isaac.dotcms.languagevariables.languageservice.IncompleteLanguageVariable;
 import nl.isaac.dotcms.languagevariables.languageservice.LanguageVariablesAPI;
 
 public class LanguageVariablesUtil {
@@ -65,7 +69,6 @@ public class LanguageVariablesUtil {
 		} else {
 			LanguageVariablesAPI languageVariablesAPI = new LanguageVariablesAPI(request);
 			String value = languageVariablesAPI.getValue(key);
-			
 			try {
 				return (value == null) ? addKeyToCacheAndReturnKey(key, languageId) : new RenderTool().eval(context.getVelocityContext(), value);
 			} catch (Exception e) {
@@ -83,7 +86,8 @@ public class LanguageVariablesUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	private String addKeyToCacheAndReturnKey(String key, String languageId) {
-		List<String> keyList = (List<String>) LanguageListCacheGroupHandler.getInstance().get(Configuration.CacheListKeysWithoutValue + languageId);
+		
+		List<String> keyList  = (List<String>) LanguageListCacheGroupHandler.getInstance().get(Configuration.CacheListKeysWithoutValue + languageId);
 		
 		if(!keyList.contains(key)) {
 			keyList.add(key);
@@ -107,9 +111,39 @@ public class LanguageVariablesUtil {
 	 * @return List with keys
 	 */
 	@SuppressWarnings("unchecked")
-	public List<String> getKeysWithoutValue(String languageId) {
+	public List<IncompleteLanguageVariable> getKeysWithoutValue(String languageId, String referer) {
+		List<IncompleteLanguageVariable> incompleteLanguageVariables = new ArrayList<>();
+		
+		LanguageVariablesAPI languageVariablesAPI = new LanguageVariablesAPI(request);
+		
 		List<String> keyList = (List<String>) LanguageListCacheGroupHandler.getInstance().get(Configuration.CacheListKeysWithoutValue + languageId);
-		return keyList;
+
+		for (String key : keyList) {
+			
+			ContentletQuery query = new ContentletQuery(Configuration.getStructureVelocityVarName());
+			query.addHostAndIncludeSystemHost(new RequestUtil(request).getCurrentHost().getIdentifier());
+			query.addFieldLimitation(true, Configuration.getStructureKeyField(), key);
+			
+			Contentlet contentlet = null;
+			List<Contentlet> contentlets = query.executeSafe();
+			if (contentlets != null && contentlets.size() != 0) {
+				contentlet = contentlets.get(0);
+			}
+			
+			LanguageVariableCacheKey workingCacheKey;
+			if (contentlet != null) {
+				workingCacheKey = new LanguageVariableCacheKey(new LanguageVariableContentlet(contentlet).getKey(), languageId, new RequestUtil(request).getCurrentHost().getIdentifier(), false, contentlet.getIdentifier());
+			} else {
+				workingCacheKey = new LanguageVariableCacheKey(key, languageId, new RequestUtil(request).getCurrentHost().getIdentifier(), false);
+			}
+
+			IncompleteLanguageVariable incompleteLanguageVariable = languageVariablesAPI.getIncompleteLanguageVariable(workingCacheKey, referer);
+			if (incompleteLanguageVariable != null) {
+				incompleteLanguageVariables.add(incompleteLanguageVariable);
+			}
+		}
+		
+		return incompleteLanguageVariables;
 	}
 	
 	private boolean shouldReturnKey() {

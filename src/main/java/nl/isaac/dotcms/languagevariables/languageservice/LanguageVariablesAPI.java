@@ -8,10 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
+import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 
 import nl.isaac.dotcms.languagevariables.cache.LanguageVariableCacheKey;
 import nl.isaac.dotcms.languagevariables.cache.LanguageVariablesCacheGroupHandler;
+import nl.isaac.dotcms.languagevariables.languageservice.IncompleteLanguageVariable.IncompleteStatus;
 import nl.isaac.dotcms.languagevariables.util.Configuration;
 import nl.isaac.dotcms.languagevariables.util.ContentletQuery;
 import nl.isaac.dotcms.languagevariables.util.LanguageVariableContentlet;
@@ -86,49 +88,87 @@ public class LanguageVariablesAPI {
 		return LanguageVariableFactory.getLanguageVariablesFromList(results);
 	}
 
-	public String getLanguageVariableContentletURL(String key, String languageId, String referer) {
-		String url = null;
-
-		// Language Variable contentlet exists for current language but is not published
-		LanguageVariableContentlet unpublishedLanguageVariableContentlet = getUnpublishedLanguageVariableContentletByKeyAndLanguage(key, languageId);
-
-		if (unpublishedLanguageVariableContentlet != null) {
-			url = "/c/portal/layout?p_l_id=71b8a1ca-37b6-4b6e-a43b-c7482f28db6c&p_p_id=EXT_11&p_p_action=1&p_p_state=maximized&p_p_mode=view&_EXT_11_struts_action=%2Fext%2Fcontentlet%2Fedit_contentlet&_EXT_11_cmd=edit&inode="
-					+ unpublishedLanguageVariableContentlet.getInode()
-					+ "&referer=" + referer;
+	public IncompleteLanguageVariable getIncompleteLanguageVariable(LanguageVariableCacheKey cacheItem, String referer) {
+		LanguageVariableContentlet archived = getArchivedLanguageVariableContentlet(cacheItem);
+		LanguageVariableContentlet unpublished = getUnpublishedLanguageVariableContentlet(cacheItem);
+		LanguageVariableContentlet missing = getExistingLanguageVariableContentletInAnotherLanguage(cacheItem);
+		LanguageVariableContentlet exists = getLanguageVariableContentlet(cacheItem);
+		
+		// Hide LanguageVariable when the key is still in cache, but not incomplete anymore (not archived, published, exists in all languages, exists)
+		// For example after updating the status of a LanguageVariable it still exists in cache as incomplete but isn't, so it shouldn't be shown in the list
+		if (exists != null && archived == null && unpublished == null && missing == null) {
+			return null;
 		}
-
-		// Language Variable contentlet exists but doesn't for the current language
-		else {
-			LanguageVariableContentlet existingLanguageVariableContentlet = getExistingLanguageVariableContentletInAnotherLanguageByKey(key);
-
-			if (existingLanguageVariableContentlet != null) {
-				// siblingId is equal to the existing node ID
-				String sibling = existingLanguageVariableContentlet.getInode();
-
-				// siblingStructure URL Query Parameter is not required
-				// (&_EXT_11_sibblingStructure=)
-				url = "/c/portal/layout?p_l_id=71b8a1ca-37b6-4b6e-a43b-c7482f28db6c&p_p_id=EXT_11&p_p_action=1&p_p_state=maximized&_EXT_11_sibbling="
-						+ sibling
-						+ "&_EXT_11_cmd=edit&_EXT_11_struts_action=%2Fext%2Fcontentlet%2Fedit_contentlet&lang="
-						+ languageId + "&inode=&host=" + hostIdentifier + "&referer=" + referer + "&folder=";
-			}
+		
+		// Archived
+		if (archived != null) {
+			Logger.info(this, "Archived LanguageVariable returned");
+			return new IncompleteLanguageVariable(archived, IncompleteStatus.ARCHIVED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
 		}
-
-		return url;
+		
+		// Unpublished
+		if (unpublished != null) {
+			Logger.info(this, "Unpublished LanguageVariable returned");
+			return new IncompleteLanguageVariable(unpublished, IncompleteStatus.UNPUBLISHED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+		}
+		
+		// Exists - exists, but not in all languages yet
+		if (missing != null) {
+			Logger.info(this, "Missing LanguageVariable returned");
+			return new IncompleteLanguageVariable(missing, IncompleteStatus.MISSING, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+		}
+		
+		// New - key doesn't exist yet
+		if (exists == null) {
+			Logger.info(this, "Non existing LanguageVariable returned");
+			return new IncompleteLanguageVariable(null, IncompleteStatus.NOT_FOUND, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+		}
+		
+		return null;
 	}
-
-	private LanguageVariableContentlet getUnpublishedLanguageVariableContentletByKeyAndLanguage(String key, String languageId) {
+	
+	private LanguageVariableContentlet getUnpublishedLanguageVariableContentlet(LanguageVariableCacheKey cacheItem) {
 		ContentletQuery unpublishedContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
 		unpublishedContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
-		unpublishedContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), key);
-		unpublishedContentletQuery.addLanguage(languageId);
-		unpublishedContentletQuery.addWorking(true);
+		if (cacheItem.getContentletIdentifier() != null) {
+			unpublishedContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
+		} else {
+			unpublishedContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
+		}
+		unpublishedContentletQuery.addLanguage(cacheItem.getLanguageId());
 		unpublishedContentletQuery.addLive(false);
+		unpublishedContentletQuery.addWorking(true);
 		unpublishedContentletQuery.addDeleted(false);
+		
+		Logger.info(this, "Unpublished LV Query: " + unpublishedContentletQuery.getQuery());
 
 		Contentlet unpublishedContentlet = unpublishedContentletQuery.executeSafeSingle();
+		
+		if (unpublishedContentlet != null) {
+			return new LanguageVariableContentlet(unpublishedContentlet);
+		}
 
+		return null;
+	}
+	
+	private LanguageVariableContentlet getArchivedLanguageVariableContentlet(LanguageVariableCacheKey cacheItem) {
+		ContentletQuery archivedContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
+		archivedContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
+		
+		if (cacheItem.getContentletIdentifier() != null) {
+			archivedContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
+		} else {
+			archivedContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
+		}
+		
+		archivedContentletQuery.addLanguage(cacheItem.getLanguageId());
+		archivedContentletQuery.addWorking(true);
+		archivedContentletQuery.addDeleted(true);
+
+		Logger.info(this, "Archived Query: " + archivedContentletQuery.getQuery());
+		
+		Contentlet unpublishedContentlet = archivedContentletQuery.executeSafeSingle();
+		
 		if (unpublishedContentlet != null) {
 			return new LanguageVariableContentlet(unpublishedContentlet);
 		}
@@ -136,24 +176,49 @@ public class LanguageVariablesAPI {
 		return null;
 	}
 
-	private LanguageVariableContentlet getExistingLanguageVariableContentletInAnotherLanguageByKey(String key) {
-		List<Language> languages = APILocator.getLanguageAPI().getLanguages();
-
-		for (Language language : languages) {
-			if (language.getId() == Long.valueOf(languageId)) {
-				continue;
+	private LanguageVariableContentlet getExistingLanguageVariableContentletInAnotherLanguage(LanguageVariableCacheKey cacheItem) {
+		if (getLanguageVariableContentlet(cacheItem) == null) {
+			List<Language> languages = APILocator.getLanguageAPI().getLanguages();
+			
+			for (Language language : languages) {
+				if (language.getId() == Long.valueOf(cacheItem.getLanguageId())) {
+					continue;
+				}
+				
+				ContentletQuery existingContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
+				existingContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
+				if (cacheItem.getContentletIdentifier() != null) {
+					existingContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
+				} else {
+					existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
+				}
+				existingContentletQuery.addLanguage(language.getId());
+				
+				Contentlet existingContentlet = existingContentletQuery.executeSafeSingle();
+	
+				if (existingContentlet != null) {
+					return new LanguageVariableContentlet(existingContentlet);
+				}
 			}
+		}
 
-			ContentletQuery existingContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
-			existingContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
-			existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), key);
-			existingContentletQuery.addLanguage(language.getId());
+		return null;
+	}
+	
+	private LanguageVariableContentlet getLanguageVariableContentlet(LanguageVariableCacheKey cacheItem) {
+		ContentletQuery existingContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
+		existingContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
+		if (cacheItem.getContentletIdentifier() != null) {
+			existingContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
+		} else {
+			existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
+		}
+		existingContentletQuery.addLanguage(cacheItem.getLanguageId());
+		
+		Contentlet existingContentlet = existingContentletQuery.executeSafeSingle();
 
-			Contentlet existingContentlet = existingContentletQuery.executeSafeSingle();
-
-			if (existingContentlet != null) {
-				return new LanguageVariableContentlet(existingContentlet);
-			}
+		if (existingContentlet != null) {
+			return new LanguageVariableContentlet(existingContentlet);
 		}
 
 		return null;

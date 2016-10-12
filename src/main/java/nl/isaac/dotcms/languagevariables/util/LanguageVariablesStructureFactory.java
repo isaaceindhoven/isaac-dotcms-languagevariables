@@ -49,14 +49,15 @@ public class LanguageVariablesStructureFactory {
 		structure.setName("Language Variables");
 		structure.setStructureType(Structure.STRUCTURE_TYPE_CONTENT);
 		structure.setHost("SYSTEM_HOST");
-
+		
 		try {
 			StructureFactory.saveStructure(structure);
-
+			
 			Field key = new Field(Configuration.getStructureKeyFieldLabel(), FieldType.TEXT, Field.DataType.TEXT, structure, true, true, true, 0, false, false, true);
 			key.setUnique(true);
 			key.setFieldContentlet("text1");
 			key.setVelocityVarName(Configuration.getStructureKeyField());
+			key.setHint("Do not use the history to bring back an old Language Variable Key");
 			
 			Field value = new Field(Configuration.getStructureValueFieldLabel(), FieldType.TEXT_AREA, Field.DataType.TEXT, structure, false, false, true, 1, false, false, true);
 			value.setFieldContentlet("text_area1");
