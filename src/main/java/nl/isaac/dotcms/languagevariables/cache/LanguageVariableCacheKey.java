@@ -34,7 +34,7 @@ public class LanguageVariableCacheKey {
 	public static LanguageVariableCacheKey createInstanceWithKey(String key) {
 		String[] parts = key.split(SEPARATOR);  
 		// length can be 5 if contentletIdentifier is set
-		if(parts.length != 4 || parts.length != 5) {
+		if(parts.length < 4) {
 			throw new RuntimeException("Illegal key: " + key);
 		}
 		return new LanguageVariableCacheKey(parts[0], parts[1], parts[2], Boolean.valueOf(parts[3]));
