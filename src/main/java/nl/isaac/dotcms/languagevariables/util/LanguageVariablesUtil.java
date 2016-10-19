@@ -111,7 +111,7 @@ public class LanguageVariablesUtil {
 	 * @return List with keys
 	 */
 	@SuppressWarnings("unchecked")
-	public List<IncompleteLanguageVariable> getKeysWithoutValue(String languageId, String referer) {
+	public List<IncompleteLanguageVariable> getIncompleteKeys(String languageId, String referer) {
 		List<IncompleteLanguageVariable> incompleteLanguageVariables = new ArrayList<>();
 		
 		LanguageVariablesAPI languageVariablesAPI = new LanguageVariablesAPI(request);

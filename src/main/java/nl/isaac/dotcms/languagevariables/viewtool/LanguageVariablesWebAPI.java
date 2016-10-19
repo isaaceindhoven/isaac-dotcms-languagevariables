@@ -38,9 +38,9 @@ public class LanguageVariablesWebAPI implements ViewTool {
 		return util.get(key, languageId);
 	}
 	
-	public List<IncompleteLanguageVariable> getKeysWithoutValue(String languageId, String referer) {
+	public List<IncompleteLanguageVariable> getIncompleteKeys(String languageId, String referer) {
 		try {
-			return util.getKeysWithoutValue(languageId, URLEncoder.encode(referer, "UTF-8"));
+			return util.getIncompleteKeys(languageId, URLEncoder.encode(referer, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			Logger.info(this, "Error occured while encoding referer URL: " + e.getMessage());
 		}

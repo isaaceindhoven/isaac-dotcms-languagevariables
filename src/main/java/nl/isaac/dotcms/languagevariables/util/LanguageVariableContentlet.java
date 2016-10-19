@@ -25,6 +25,10 @@ public class LanguageVariableContentlet {
 		return contentlet.getStringProperty(Configuration.getStructureKeyField());
 	}
 	
+	public String getIdentifier() {
+		return contentlet.getIdentifier();
+	}
+	
 	public String getHostIdentifier() {
 		return contentlet.getHost();
 	}

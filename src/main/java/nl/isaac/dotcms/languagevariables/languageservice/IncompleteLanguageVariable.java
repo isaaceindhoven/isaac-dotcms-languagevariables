@@ -63,7 +63,7 @@ public class IncompleteLanguageVariable {
 			
 			switch (status) {
 				case ARCHIVED:
-					text = "Edit";
+					text = "Unarchive";
 					url = urlUtil.getArchivedURL();
 					break;
 				case UNPUBLISHED:

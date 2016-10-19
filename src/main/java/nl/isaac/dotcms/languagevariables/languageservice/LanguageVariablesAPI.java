@@ -158,10 +158,10 @@ public class LanguageVariablesAPI {
 		archivedContentletQuery.addWorking(true);
 		archivedContentletQuery.addDeleted(true);
 		
-		Contentlet unpublishedContentlet = archivedContentletQuery.executeSafeSingle();
+		Contentlet archivedContent = archivedContentletQuery.executeSafeSingle();
 		
-		if (unpublishedContentlet != null) {
-			return new LanguageVariableContentlet(unpublishedContentlet);
+		if (archivedContent != null) {
+			return new LanguageVariableContentlet(archivedContent);
 		}
 
 		return null;

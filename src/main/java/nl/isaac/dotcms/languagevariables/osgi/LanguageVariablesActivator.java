@@ -2,8 +2,9 @@ package nl.isaac.dotcms.languagevariables.osgi;
 
 import com.dotcms.repackage.org.osgi.framework.BundleContext;
 
-import nl.isaac.dotcms.languagevariables.cache.servlet.FlushVariablesCache;
 import nl.isaac.dotcms.languagevariables.languageservice.LanguagePrefixesServlet;
+import nl.isaac.dotcms.languagevariables.servlet.FlushVariablesCache;
+import nl.isaac.dotcms.languagevariables.servlet.UnarchiveVariable;
 import nl.isaac.dotcms.languagevariables.util.ContentletPostHook;
 import nl.isaac.dotcms.languagevariables.util.ContentletPreHook;
 import nl.isaac.dotcms.languagevariables.util.LanguageVariablesStructureFactory;
@@ -27,6 +28,7 @@ public class LanguageVariablesActivator extends ExtendedGenericBundleActivator {
 		// Register the servlet
 		addServlet(context, LanguagePrefixesServlet.class, "/servlets/glossary/prefixes");
 		addServlet(context, FlushVariablesCache.class, "/servlets/languagevariables/portlet/flush");
+		addServlet(context, UnarchiveVariable.class, "/servlets/languagevariables/portlet/unarchive");
 		
 		// Register language variables (portlet name)
 		addLanguageVariables(context);

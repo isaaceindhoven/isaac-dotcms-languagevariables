@@ -5,8 +5,12 @@
 	text-align: center;
 }
 
+td.incompleteKeyAction {
+	text-align: center;
+}
+
 td.incompleteKeyAction > span > span {
-	width: 200px;
+	width: 99px;
 }
 </style>
 
@@ -30,10 +34,10 @@ td.incompleteKeyAction > span > span {
 				</td>
 				<td class="buttonColumn">
 
-					<form method="post" action="/app/servlets/languagevariables/portlet/flush/" id="languagevariables_without_value">
+					<form method="post" action="/app/servlets/languagevariables/portlet/flush/" id="incomplete_languagevariables">
 						<input type="hidden" name="referer" value="/c/portal/layout?${request.QueryString}" />
 					</form>
-					<button dojoType="dijit.form.Button" onClick="dojo.byId('languagevariables_without_value').submit()" iconClass="resetIcon">
+					<button dojoType="dijit.form.Button" onClick="dojo.byId('incomplete_languagevariables').submit()" iconClass="resetIcon">
 						Flush Cache
 					</button>
 					
@@ -43,7 +47,7 @@ td.incompleteKeyAction > span > span {
 			<tr>
 				<td colspan="2">
 					<br />
-					
+					#set($i = 0)
 					#set($languages = $languageWebAPI.getLanguages())
 					#foreach($languageObject in $languages)
 						#set($languageLocale = "/html/images/languages/" + $languageObject.getLanguageCode() + "_" + $languageObject.getCountryCode() + ".gif")
@@ -55,11 +59,11 @@ td.incompleteKeyAction > span > span {
 									<th style="white-space:nowrap; width:5px;">Status</th>
 									<th style="white-space:nowrap; width:5px;">Language</th>
 									<th style="white-space:nowrap;">Key</th>
-									<th style="white-space:nowrap; width:200px;">Action</th>
+									<th style="white-space:nowrap; width:245px; text-align:center;">Action</th>
 								</tr>
 								
-								#set($keyWithoutValueList = $languageVariables.getKeysWithoutValue("$languageObject.getId()", $currentURL))
-								#foreach($incompleteLanguageVariable in $keyWithoutValueList)
+								#set($incompleteKeysList = $languageVariables.getIncompleteKeys("$languageObject.getId()", $currentURL))
+								#foreach($incompleteLanguageVariable in $incompleteKeysList)
 									<tr>
 										<td style="text-align:center;">
 										#if($incompleteLanguageVariable.status == "UNPUBLISHED")
@@ -88,14 +92,28 @@ td.incompleteKeyAction > span > span {
 											<a href="$!{incompleteLanguageVariable.action.url}">$incompleteLanguageVariable.keyName</a>
 										</td>
 										<td class="incompleteKeyAction">
+											#if($incompleteLanguageVariable.status == "ARCHIVED")
+												<form method="post" action="/app/servlets/languagevariables/portlet/unarchive" id="unarchive_key_$!{i}">
+													<input type="hidden" name="referer" value="/c/portal/layout?${request.QueryString}" />
+													<input type="hidden" name="contentletIdentifier" value="$!{incompleteLanguageVariable.contentlet.identifier}" />
+													<input type="hidden" name="languageId" value="$!{languageObject.getId()}" />
+												</form>
+												
+												<button dojoType="dijit.form.Button" onClick="dojo.byId('unarchive_key_$!{i}').submit()">
+													$!{incompleteLanguageVariable.action.text}
+												</button>
+												
+												#set($i = $i + 1)
+											#else
 											<button dojoType="dijit.form.Button" onclick="location.href = '$!{incompleteLanguageVariable.action.url}'; return false;">
 												$!{incompleteLanguageVariable.action.text}
 											</button>
+											#end
 										</td>
 									</tr>
 								#end
 								
-								#if($keyWithoutValueList.size() == 0)
+								#if($incompleteKeysList.size() == 0)
 									<tr>
 										<td colspan="4">
 											All values for the used keys of this language are filled or they are still not triggered.
@@ -125,4 +143,17 @@ td.incompleteKeyAction > span > span {
 		showDotCMSSystemMessage("<div class=\"messageIcon deleteIcon\"></div>Error while flushing the cache")
 	</script>
 	#set($dummy = $request.getSession().removeAttribute("languagevariables_flush_status"))
+#end
+
+#if($request.getSession().getAttribute("languagevariables_unarchive_status") == "true")
+	<script>
+		showDotCMSSystemMessage("<div class=\"messageIcon resolveIcon\"></div>The Language Variable is unarchived")
+	</script>
+	#set($dummy = $request.getSession().removeAttribute("languagevariables_unarchive_status"))
+	
+#elseif($request.getSession().getAttribute("languagevariables_unarchive_status") == "false")
+	<script>
+		showDotCMSSystemMessage("<div class=\"messageIcon deleteIcon\"></div>Error while unarchiving the Language Variable")
+	</script>
+	#set($dummy = $request.getSession().removeAttribute("languagevariables_unarchive_status"))
 #end

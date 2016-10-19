@@ -1,4 +1,4 @@
-package nl.isaac.dotcms.languagevariables.cache.servlet;
+package nl.isaac.dotcms.languagevariables.servlet;
 
 import java.io.IOException;
 import java.util.List;
