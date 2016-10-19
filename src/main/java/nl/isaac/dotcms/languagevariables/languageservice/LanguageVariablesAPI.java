@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
-import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 
 import nl.isaac.dotcms.languagevariables.cache.LanguageVariableCacheKey;
@@ -102,25 +101,21 @@ public class LanguageVariablesAPI {
 		
 		// Archived
 		if (archived != null) {
-			Logger.info(this, "Archived LanguageVariable returned");
 			return new IncompleteLanguageVariable(archived, IncompleteStatus.ARCHIVED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
 		}
 		
 		// Unpublished
 		if (unpublished != null) {
-			Logger.info(this, "Unpublished LanguageVariable returned");
 			return new IncompleteLanguageVariable(unpublished, IncompleteStatus.UNPUBLISHED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
 		}
 		
 		// Exists - exists, but not in all languages yet
 		if (missing != null) {
-			Logger.info(this, "Missing LanguageVariable returned");
 			return new IncompleteLanguageVariable(missing, IncompleteStatus.MISSING, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
 		}
 		
 		// New - key doesn't exist yet
 		if (exists == null) {
-			Logger.info(this, "Non existing LanguageVariable returned");
 			return new IncompleteLanguageVariable(null, IncompleteStatus.NOT_FOUND, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
 		}
 		
@@ -140,8 +135,6 @@ public class LanguageVariablesAPI {
 		unpublishedContentletQuery.addWorking(true);
 		unpublishedContentletQuery.addDeleted(false);
 		
-		Logger.info(this, "Unpublished LV Query: " + unpublishedContentletQuery.getQuery());
-
 		Contentlet unpublishedContentlet = unpublishedContentletQuery.executeSafeSingle();
 		
 		if (unpublishedContentlet != null) {
@@ -164,8 +157,6 @@ public class LanguageVariablesAPI {
 		archivedContentletQuery.addLanguage(cacheItem.getLanguageId());
 		archivedContentletQuery.addWorking(true);
 		archivedContentletQuery.addDeleted(true);
-
-		Logger.info(this, "Archived Query: " + archivedContentletQuery.getQuery());
 		
 		Contentlet unpublishedContentlet = archivedContentletQuery.executeSafeSingle();
 		
@@ -193,6 +184,7 @@ public class LanguageVariablesAPI {
 					existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
 				}
 				existingContentletQuery.addLanguage(language.getId());
+				
 				
 				Contentlet existingContentlet = existingContentletQuery.executeSafeSingle();
 	

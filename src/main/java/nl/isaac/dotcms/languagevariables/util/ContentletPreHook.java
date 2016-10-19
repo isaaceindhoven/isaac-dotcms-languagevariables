@@ -15,13 +15,11 @@ public class ContentletPreHook extends ContentletAPIPreHookAbstractImp {
 
 	public boolean checkin(Contentlet currentContentlet, ContentletRelationships relationshipsData, List<Category> cats,
 			List<Permission> selectedPermissions, User user, boolean respectFrontendRoles) {
-		Logger.info(this, "Prehook - Checkin 2 called");
 		keyIsUnique(currentContentlet);
 		return true;
 	}
 	
 	public boolean publish(Contentlet contentlet, User user, boolean respectFrontendRoles) {
-		Logger.info(this, "Prehook - Publish 1 called");
 		keyIsUnique(contentlet);
 		return true;
 	}
@@ -32,7 +30,7 @@ public class ContentletPreHook extends ContentletAPIPreHookAbstractImp {
 
 		if (LanguageVariableContentlet.isLanguageVariable(newContentlet)) {
 			
-			Logger.info(this, "Checking if Key Already Exists for Language Variable: " + (isNew ? "[NEW]" : newContentlet.getIdentifier()));
+			Logger.info(this, "Checking if key already exists for Language Variable: " + (isNew ? "[NEW]" : newContentlet.getIdentifier()));
 			
 			LanguageVariableContentlet newLanguageVariable = new LanguageVariableContentlet(newContentlet);
 

@@ -2,12 +2,12 @@
 
 <portlet-app>
 	<portlet>
-		<portlet-name>EXT_LANGUAGE_VARIABLES_KEYS_WITHOUT_VALUE</portlet-name>
-		<display-name>Language Variables Without Value</display-name>
+		<portlet-name>EXT_LANGUAGE_VARIABLES_INCOMPLETE_KEYS</portlet-name>
+		<display-name>Language Variables With Incomplete Keys</display-name>
 		<portlet-class>com.liferay.portlet.VelocityPortlet</portlet-class>
 		<init-param>
 				<name>view-template</name>
-				<value>/ext/keys_without_value.vm</value>
+				<value>/ext/incomplete_keys.vm</value>
 		</init-param>
 		<expiration-cache>0</expiration-cache>
 		<supports>

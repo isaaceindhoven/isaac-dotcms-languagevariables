@@ -114,92 +114,87 @@ public class ContentletPostHook extends ContentletAPIPostHookAbstractImp {
 	}
 	
 	private void renameAllKeys(Contentlet newContentlet, User user, boolean respectFrontendRoles) {
-		Logger.info(this, "RenameAllKeys called");
-		
-		if(!LanguageVariableContentlet.isLanguageVariable(newContentlet)) {
-			Logger.info(this, "Skipped RenameAllKeys - contentlet (id: " + newContentlet.getIdentifier() + ") is not a Language Variable");
-			return;
-		}
-		
-		// A new LanguageVariableKey content is added, no need to rename keys since
-		// this has been checked in the PreHook
-		if (StringUtils.isBlank(newContentlet.getIdentifier())) {
-			Logger.info(this, "Skipped RenameAllKeys - a new Language Variable contentlet is added");
-			return;
-		}
-		
-		// Save clicked, without publish, causes the Inode to be blank
-		if (StringUtils.isBlank(newContentlet.getInode())) {
-			Contentlet savedContentlet = null;
-			try {
-				savedContentlet = APILocator.getContentletAPI().findContentletByIdentifier(newContentlet.getIdentifier(), false, newContentlet.getLanguageId(), user, respectFrontendRoles);
-			} catch (DotContentletStateException | DotDataException | DotSecurityException e) {
-				e.printStackTrace();
+		if(LanguageVariableContentlet.isLanguageVariable(newContentlet)) {
+			
+			// A new LanguageVariableKey content is added, no need to rename keys since
+			// this has been checked in the PreHook
+			if (StringUtils.isBlank(newContentlet.getIdentifier())) {
+				return;
 			}
 			
-			if (savedContentlet != null) {
-				newContentlet = savedContentlet;
-			}
-		}
-		
-		LanguageVariableContentlet languageVariable = new LanguageVariableContentlet(newContentlet);
-		
-		LanguageVariableContentlet previousVersion = LanguageVariableFactory.getPreviousVersionInCurrentLanguage(languageVariable, user, respectFrontendRoles);
-		
-		if (previousVersion == null) {
-			Logger.info(this, "Skipped RenameAllKeys - previous version of the Language Variable not found");
-			return;
-		} else if (previousVersion.getKey().equals(languageVariable.getKey())) {
-			Logger.info(this, "Skipped RenameAllKeys - key of previous version of the Language Variable is empty");
-			return;
-		} else {
-			Logger.info(this, "Executing RenameAllKeys - previous version of Language Variable's key is not equal (or not found): " + previousVersion.getKey());
-		}
-		
-		// 'Save and publish' is clicked, we have access to the old key value to retrieve
-		// the language variable contentlets which have to be renamed
-		ContentletQuery contentletQueryByKey = new ContentletQuery(Configuration.getStructureVelocityVarName());
-		contentletQueryByKey.addFieldLimitation(true, Configuration.getStructureKeyField(), previousVersion.getKey());
-		contentletQueryByKey.addHostAndIncludeSystemHost(newContentlet.getHost());
-		
-		List<Contentlet> results = contentletQueryByKey.executeSafe();
-		
-		// Archived contentlets cannot be renamed
-		List<Contentlet> archivedContentlets = results.stream().filter(c -> {
-			try {
-				return c.isArchived();
-			} catch (DotStateException | DotDataException | DotSecurityException e) {
-				throw new RuntimeException("Error occured while checking Language Variable contentlets state", e);
-			}
-		}).collect(Collectors.toList());
-		
-		if (archivedContentlets != null && !archivedContentlets.isEmpty()) {
-			throw new RuntimeException("Please unarchive the archived Language Variable with key '" + previousVersion.getKey() + "' first");
-		}
-		
-		ContentletAPI conAPI = APILocator.getContentletAPI();
-		
-		for (Contentlet contentlet : results) {
-			// Skip current contentlet, this one has already been renamed before this method got called
-			if (languageVariable.getLanguageId() == contentlet.getLanguageId() || contentlet.getInode().equals(newContentlet.getInode())) {
-				continue;
+			// Save clicked, without publish, causes the Inode to be blank
+			if (StringUtils.isBlank(newContentlet.getInode())) {
+				Contentlet savedContentlet = null;
+				try {
+					savedContentlet = APILocator.getContentletAPI().findContentletByIdentifier(newContentlet.getIdentifier(), false, newContentlet.getLanguageId(), user, respectFrontendRoles);
+				} catch (DotContentletStateException | DotDataException | DotSecurityException e) {
+					Logger.warn(this, "Error occured while finding contentlet by identifier", e);
+				}
+				
+				if (savedContentlet != null) {
+					newContentlet = savedContentlet;
+				}
 			}
 			
-			Logger.info(this, "Renaming key for contentlet " + contentlet.getInode());
+			LanguageVariableContentlet languageVariable = new LanguageVariableContentlet(newContentlet);
 			
-			try {
+			LanguageVariableContentlet previousVersion = LanguageVariableFactory.getPreviousVersionInCurrentLanguage(languageVariable, user, respectFrontendRoles);
+			
+			if (previousVersion == null) {
+				Logger.info(this, "Skipped RenameAllKeys - previous version of the Language Variable not found");
+				return;
+			} else if (previousVersion.getKey().equals(languageVariable.getKey())) {
+				Logger.info(this, "Skipped RenameAllKeys - key of previous version of the Language Variable is empty");
+				return;
+			} else {
+				Logger.info(this, "Executing RenameAllKeys - previous version of Language Variable's key is not equal (or not found): " + previousVersion.getKey());
+			}
+			
+			// 'Save and publish' is clicked, we have access to the old key value to retrieve
+			// the Language Variable contentlets which have to be renamed
+			ContentletQuery contentletQueryByKey = new ContentletQuery(Configuration.getStructureVelocityVarName());
+			contentletQueryByKey.addFieldLimitation(true, Configuration.getStructureKeyField(), previousVersion.getKey());
+			contentletQueryByKey.addHostAndIncludeSystemHost(newContentlet.getHost());
+			
+			List<Contentlet> results = contentletQueryByKey.executeSafe();
+			
+			// Archived contentlets cannot be renamed
+			List<Contentlet> archivedContentlets = results.stream().filter(c -> {
+				try {
+					return c.isArchived();
+				} catch (DotStateException | DotDataException | DotSecurityException e) {
+					throw new RuntimeException("Error occured while checking Language Variable contentlets state", e);
+				}
+			}).collect(Collectors.toList());
+			
+			if (archivedContentlets != null && !archivedContentlets.isEmpty()) {
+				throw new RuntimeException("Please unarchive the archived Language Variable with key '" + previousVersion.getKey() + "' first");
+			}
+			
+			ContentletAPI conAPI = APILocator.getContentletAPI();
+			
+			for (Contentlet contentlet : results) {
+				// Skip current contentlet, this was already renamed before this method got called
+				if (languageVariable.getLanguageId() == contentlet.getLanguageId() || contentlet.getInode().equals(newContentlet.getInode())) {
+					continue;
+				}
 				
-				// Checkout the Language Variable to edit
-				Contentlet renamedContentlet = conAPI.checkout(contentlet.getInode(), user, respectFrontendRoles);
+				Logger.info(this, "Renaming key for contentlet " + contentlet.getInode());
 				
-				// Change the existing Language Variable's key to the new key
-				renamedContentlet.setStringProperty(Configuration.getStructureKeyField(), languageVariable.getKey());
-				
-				// Check in the updated Language Variable
-				renamedContentlet = conAPI.checkin(renamedContentlet,  user, respectFrontendRoles);
-            	
-			} catch (DotStateException | DotSecurityException | DotDataException e) {
-				e.printStackTrace();
+				try {
+					
+					// Checkout the Language Variable to edit
+					Contentlet renamedContentlet = conAPI.checkout(contentlet.getInode(), user, respectFrontendRoles);
+					
+					// Change the existing Language Variable's key to the new key
+					renamedContentlet.setStringProperty(Configuration.getStructureKeyField(), languageVariable.getKey());
+					
+					// Check-in the updated Language Variable
+					renamedContentlet = conAPI.checkin(renamedContentlet,  user, respectFrontendRoles);
+	            	
+				} catch (DotStateException | DotSecurityException | DotDataException e) {
+					Logger.warn(this, "Error occured while renaming Language Variable key", e);
+				}
 			}
 		}
 	}

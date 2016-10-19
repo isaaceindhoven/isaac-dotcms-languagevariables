@@ -1,15 +1,32 @@
 #set($currentURL = "/c/portal/layout?$request.getQueryString()")
 
+<style>
+.buttonColumn {
+	text-align: center;
+}
+
+td.incompleteKeyAction > span > span {
+	width: 200px;
+}
+</style>
+
 <div id="languageKeyList">
 	<table class="listingTable shadowBox">
 		<tbody>
 			<tr>
-				<th style="white-space:nowrap;">Language Variables - Keys without values</th>
-				<th style="white-space:nowrap;">Flush Cache for keys without value</th>		
+				<th style="white-space:nowrap;">Language Variables - Incomplete keys</th>
+				<th style="white-space:nowrap;">Flush Cache for incomplete keys</th>		
 			</tr>
 			<tr>
 				<td>
-					<p>On this page you will find the language keys without a filled value. The language keys without a value will only be available in the list when they are requested on one of the pages. Below this text are the list(s) with language keys sorted by the different languages. The list can be cleared by clicking on the flush button.</p>
+					<p>On this page you will find the language keys which are incomplete. A language key is considered incomplete if:</p>
+					<ul>
+						<li>&bull; the status is <b>unpublished</b> or <b>archived</b></li>
+						<li>&bull; the key exists in at least one language but not in the others <b>(missing)</b></li>
+						<li>&bull; the key doesn't exist <b>(new)</b></li>
+					</ul>
+					<br>
+					<span>The incomplete language keys will only be available in the list when they are requested on one of the pages. Below this text are the list(s) with language keys sorted by the different languages. The list can be cleared by clicking on the flush button.</span>
 				</td>
 				<td class="buttonColumn">
 
@@ -19,13 +36,14 @@
 					<button dojoType="dijit.form.Button" onClick="dojo.byId('languagevariables_without_value').submit()" iconClass="resetIcon">
 						Flush Cache
 					</button>
-
+					
 				</td>
 			</tr>
 			
 			<tr>
 				<td colspan="2">
-				
+					<br />
+					
 					#set($languages = $languageWebAPI.getLanguages())
 					#foreach($languageObject in $languages)
 						#set($languageLocale = "/html/images/languages/" + $languageObject.getLanguageCode() + "_" + $languageObject.getCountryCode() + ".gif")
@@ -37,7 +55,7 @@
 									<th style="white-space:nowrap; width:5px;">Status</th>
 									<th style="white-space:nowrap; width:5px;">Language</th>
 									<th style="white-space:nowrap;">Key</th>
-									<th style="white-space:nowrap; width:95px;">Action</th>
+									<th style="white-space:nowrap; width:200px;">Action</th>
 								</tr>
 								
 								#set($keyWithoutValueList = $languageVariables.getKeysWithoutValue("$languageObject.getId()", $currentURL))
@@ -58,7 +76,7 @@
 												<span>Missing</span>
 											</div>
 										#elseif($incompleteLanguageVariable.status == "NOT_FOUND")
-											<div title="Doesn't exists">
+											<div title="Doesn't exist">
 												<span>New</span>
 											</div>
 										#end
@@ -67,18 +85,12 @@
 											<img src="$languageLocale">
 										</td>
 										<td>
-											#if($incompleteLanguageVariable.status == "UNPUBLISHED" || $incompleteLanguageVariable.status == "ARCHIVED")
-												<a href="$!{incompleteLanguageVariable.action.url}">$incompleteLanguageVariable.keyName</a>
-											#else
-												$incompleteLanguageVariable.keyName
-											#end
+											<a href="$!{incompleteLanguageVariable.action.url}">$incompleteLanguageVariable.keyName</a>
 										</td>
-										<td>
-											#if($incompleteLanguageVariable.status == "MISSING" || $incompleteLanguageVariable.status == "NOT_FOUND")
+										<td class="incompleteKeyAction">
 											<button dojoType="dijit.form.Button" onclick="location.href = '$!{incompleteLanguageVariable.action.url}'; return false;">
 												$!{incompleteLanguageVariable.action.text}
 											</button>
-											#end
 										</td>
 									</tr>
 								#end

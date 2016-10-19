@@ -3,6 +3,7 @@ package nl.isaac.dotcms.languagevariables.viewtool;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ViewTool;
@@ -65,7 +66,7 @@ public class LanguageVariablesWebAPI implements ViewTool {
 		}
 		
 		// Non-existing language variable key
-		final String nonExistingLanguageKey = "123a-non-existing-key456";
+		final String nonExistingLanguageKey = UUID.randomUUID().toString();
 		
 		String languageValue = util.get(nonExistingLanguageKey);
 		if (nonExistingLanguageKey.equals(languageValue)) {

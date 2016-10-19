@@ -126,7 +126,7 @@ public class LanguageVariablesUtil {
 			
 			Contentlet contentlet = null;
 			List<Contentlet> contentlets = query.executeSafe();
-			if (contentlets != null && contentlets.size() != 0) {
+			if (contentlets != null && !contentlets.isEmpty()) {
 				contentlet = contentlets.get(0);
 			}
 			
