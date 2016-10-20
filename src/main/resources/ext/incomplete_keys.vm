@@ -1,16 +1,17 @@
 #set($currentURL = "/c/portal/layout?$request.getQueryString()")
 
 <style>
-.buttonColumn {
-	text-align: center;
+td.buttonColumn {
+	width: 185px;
+	white-space: nowrap;
 }
 
-td.incompleteKeyAction {
-	text-align: center;
+td.buttonColumn > span > span {
+	width: 120px;
 }
 
-td.incompleteKeyAction > span > span {
-	width: 99px;
+.dijitButtonNode {
+	text-align: left!important;
 }
 </style>
 
@@ -59,7 +60,7 @@ td.incompleteKeyAction > span > span {
 									<th style="white-space:nowrap; width:5px;">Status</th>
 									<th style="white-space:nowrap; width:5px;">Language</th>
 									<th style="white-space:nowrap;">Key</th>
-									<th style="white-space:nowrap; width:245px; text-align:center;">Action</th>
+									<th style="white-space:nowrap;">Action</th>
 								</tr>
 								
 								#set($incompleteKeysList = $languageVariables.getIncompleteKeys("$languageObject.getId()", $currentURL))
@@ -67,19 +68,23 @@ td.incompleteKeyAction > span > span {
 									<tr>
 										<td style="text-align:center;">
 										#if($incompleteLanguageVariable.status == "UNPUBLISHED")
+											#set( $iconClass = "editIcon" )
 											<div title="Unpublished">
 												<span class="workingIcon"></span>
 												<span class="greyDotIcon" style="opacity:.4"></span>
 											</div>
 										#elseif($incompleteLanguageVariable.status == "ARCHIVED")
+											#set( $iconClass = "unarchiveIcon" )
 											<div title="Archived">
 												<span class="greyDotIcon" style="opacity:.4"></span><span class="archivedIcon"></span>
 											</div>
 										#elseif($incompleteLanguageVariable.status == "MISSING")
+											#set( $iconClass = "plusIcon" )
 											<div title="Missing in current language">
 												<span>Missing</span>
 											</div>
 										#elseif($incompleteLanguageVariable.status == "NOT_FOUND")
+											#set( $iconClass = "plusIcon" )
 											<div title="Doesn't exist">
 												<span>New</span>
 											</div>
@@ -91,7 +96,7 @@ td.incompleteKeyAction > span > span {
 										<td>
 											<a href="$!{incompleteLanguageVariable.action.url}">$incompleteLanguageVariable.keyName</a>
 										</td>
-										<td class="incompleteKeyAction">
+										<td class="buttonColumn">
 											#if($incompleteLanguageVariable.status == "ARCHIVED")
 												<form method="post" action="/app/servlets/languagevariables/portlet/unarchive" id="unarchive_key_$!{i}">
 													<input type="hidden" name="referer" value="/c/portal/layout?${request.QueryString}" />
@@ -99,14 +104,14 @@ td.incompleteKeyAction > span > span {
 													<input type="hidden" name="languageId" value="$!{languageObject.getId()}" />
 												</form>
 												
-												<button dojoType="dijit.form.Button" onClick="dojo.byId('unarchive_key_$!{i}').submit()">
-													$!{incompleteLanguageVariable.action.text}
+												<button dojoType="dijit.form.Button" onClick="dojo.byId('unarchive_key_$!{i}').submit()" iconClass="$!{iconClass}">
+													&emsp;&emsp;&emsp;$!{incompleteLanguageVariable.action.text}
 												</button>
 												
 												#set($i = $i + 1)
 											#else
-											<button dojoType="dijit.form.Button" onclick="location.href = '$!{incompleteLanguageVariable.action.url}'; return false;">
-												$!{incompleteLanguageVariable.action.text}
+											<button dojoType="dijit.form.Button" onclick="location.href = '$!{incompleteLanguageVariable.action.url}'; return false;" iconClass="$!{iconClass}">
+												&emsp;&emsp;&emsp;$!{incompleteLanguageVariable.action.text}
 											</button>
 											#end
 										</td>

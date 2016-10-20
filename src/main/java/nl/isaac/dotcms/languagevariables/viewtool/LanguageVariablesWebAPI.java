@@ -23,24 +23,24 @@ import nl.isaac.dotcms.languagevariables.util.LanguageVariablesUtil;
  */
 public class LanguageVariablesWebAPI implements ViewTool {
 	
-	private LanguageVariablesUtil util;
+	private LanguageVariablesUtil languageVariablesUtil;
 	
 	@Override
 	public void init(Object obj) {
-		this.util = new LanguageVariablesUtil(((ViewContext) obj));
+		this.languageVariablesUtil = new LanguageVariablesUtil(((ViewContext) obj));
 	}
 	
 	public String get(String key) {
-		return util.get(key);
+		return languageVariablesUtil.get(key);
 	}
 
 	public String get(String key, String languageId) {
-		return util.get(key, languageId);
+		return languageVariablesUtil.get(key, languageId);
 	}
 	
 	public List<IncompleteLanguageVariable> getIncompleteKeys(String languageId, String referer) {
 		try {
-			return util.getIncompleteKeys(languageId, URLEncoder.encode(referer, "UTF-8"));
+			return languageVariablesUtil.getIncompleteKeys(languageId, URLEncoder.encode(referer, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			Logger.info(this, "Error occured while encoding referer URL: " + e.getMessage());
 		}
@@ -68,7 +68,7 @@ public class LanguageVariablesWebAPI implements ViewTool {
 		// Non-existing language variable key
 		final String nonExistingLanguageKey = UUID.randomUUID().toString();
 		
-		String languageValue = util.get(nonExistingLanguageKey);
+		String languageValue = languageVariablesUtil.get(nonExistingLanguageKey);
 		if (nonExistingLanguageKey.equals(languageValue)) {
 			return nonExistingLanguageKey;
 		}
