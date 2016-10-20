@@ -1,12 +1,19 @@
 #set($currentURL = "/c/portal/layout?$request.getQueryString()")
 
 <style>
+td.buttonColumnCache {
+	width: 150px;
+	white-space: nowrap;
+	text-align: center;
+}
+
 td.buttonColumn {
-	width: 185px;
+	width: 131px;
 	white-space: nowrap;
 }
 
-td.buttonColumn > span > span {
+td.buttonColumn > span > span,
+td.buttonColumnCache > span > span {
 	width: 120px;
 }
 
@@ -20,7 +27,7 @@ td.buttonColumn > span > span {
 		<tbody>
 			<tr>
 				<th style="white-space:nowrap;">Language Variables - Incomplete keys</th>
-				<th style="white-space:nowrap;">Flush Cache for incomplete keys</th>		
+				<th style="white-space:nowrap;">Flush Cache</th>		
 			</tr>
 			<tr>
 				<td>
@@ -33,7 +40,7 @@ td.buttonColumn > span > span {
 					<br>
 					<span>The incomplete language keys will only be available in the list when they are requested on one of the pages. Below this text are the list(s) with language keys sorted by the different languages. The list can be cleared by clicking on the flush button.</span>
 				</td>
-				<td class="buttonColumn">
+				<td class="buttonColumnCache">
 
 					<form method="post" action="/app/servlets/languagevariables/portlet/flush/" id="incomplete_languagevariables">
 						<input type="hidden" name="referer" value="/c/portal/layout?${request.QueryString}" />
