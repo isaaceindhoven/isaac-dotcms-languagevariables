@@ -64,10 +64,10 @@ td.buttonColumnCache > span > span {
 						<table class="listingTable shadowBox">
 							<tbody>
 								<tr>
-									<th style="white-space:nowrap; width:5px;">Status</th>
-									<th style="white-space:nowrap; width:5px;">Language</th>
+									<th style="white-space:nowrap; text-align:center; width:50px;">Status</th>
+									<th style="white-space:nowrap; width:60px;">Language</th>
 									<th style="white-space:nowrap;">Key</th>
-									<th style="white-space:nowrap;">Action</th>
+									<th style="white-space:nowrap; width:131px;">Action</th>
 								</tr>
 								
 								#set($incompleteKeysList = $languageVariables.getIncompleteKeys("$languageObject.getId()", $currentURL))
