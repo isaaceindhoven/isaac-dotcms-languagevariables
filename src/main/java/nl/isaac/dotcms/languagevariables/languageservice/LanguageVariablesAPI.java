@@ -6,8 +6,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import com.dotmarketing.business.APILocator;
+import com.dotmarketing.business.DotStateException;
+import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.portlets.languagesmanager.model.Language;
+import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.UtilMethods;
 
 import nl.isaac.dotcms.languagevariables.cache.LanguageVariableCacheKey;
@@ -100,8 +104,16 @@ public class LanguageVariablesAPI {
 		}
 		
 		// Archived
-		if (archived != null) {
-			return new IncompleteLanguageVariable(archived, IncompleteStatus.ARCHIVED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+		try {
+			if (archived != null) {					
+				if (archived.getContentlet().isArchived()) {
+					return new IncompleteLanguageVariable(archived, IncompleteStatus.ARCHIVED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+				} else {
+					return new IncompleteLanguageVariable(archived, IncompleteStatus.UNPUBLISHED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+				}
+			}
+		} catch (DotStateException | DotDataException | DotSecurityException e) {
+			Logger.warn(this, "Error while checking if Language Variable is archived", e);
 		}
 		
 		// Unpublished

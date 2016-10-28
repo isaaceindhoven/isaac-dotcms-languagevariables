@@ -47,11 +47,6 @@ public class UnarchiveVariable extends HttpServlet {
 				}
 			}
 			
-			// Wait until the cache/index is updated, and redirect afterwards
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) { }
-			
 			response.sendRedirect(referer);
 		} else {
 			response.sendRedirect("/c/portal/layout");
