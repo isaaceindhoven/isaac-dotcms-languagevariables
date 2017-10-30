@@ -10,14 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.view.context.ChainedContext;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 import com.dotcms.repackage.org.apache.commons.io.IOUtils;
-import com.dotcms.repackage.org.osgi.framework.Bundle;
-import com.dotcms.repackage.org.osgi.framework.FrameworkUtil;
 import com.dotmarketing.util.VelocityUtil;
 
 public class MonitoringServlet extends HttpServlet {
-	
 	private static final String testMacro = "#macro(test $boolean)#if($boolean) OK\n#else NOK\n#end#end\n";
 
 	@Override
@@ -29,7 +28,7 @@ public class MonitoringServlet extends HttpServlet {
 
 		try {
 			String result = VelocityUtil.eval(velocity, velocityContext);
-			if (result.contains("$") || result.contains("NOK")) {
+			if(result.contains("$") || result.contains("NOK")) {
 				response.setStatus(500);
 			}
 			response.getWriter().write(result);
@@ -39,7 +38,7 @@ public class MonitoringServlet extends HttpServlet {
 
 	}
 
-	private ChainedContext getStrictVelocityContext(HttpServletRequest request, HttpServletResponse response) {
+	private ChainedContext getStrictVelocityContext(HttpServletRequest request,	HttpServletResponse response) {
 		ChainedContext velocityContext = VelocityUtil.getWebContext(request, response);
 		velocityContext.getVelocityEngine().setProperty(VelocityEngine.RUNTIME_REFERENCES_STRICT, true);
 		velocityContext.getVelocityEngine().setProperty(VelocityEngine.RUNTIME_REFERENCES_STRICT_ESCAPE, true);
@@ -49,7 +48,7 @@ public class MonitoringServlet extends HttpServlet {
 	private String getMonitoringVelocity() throws IOException {
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
 		URL resourceURL = bundle.getResource("ext/monitoring.vtl");
-		if (resourceURL != null) {
+		if(resourceURL != null) {
 			String velocity = IOUtils.toString(resourceURL.openStream(), "UTF-8");
 			return testMacro + velocity;
 		} else {

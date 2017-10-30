@@ -26,26 +26,24 @@ import javax.servlet.Filter;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 
+import org.apache.felix.http.api.ExtHttpService;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.tools.view.context.ViewContext;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.StdSchedulerFactory;
-import org.springframework.web.servlet.DispatcherServlet;
 
 import com.dotcms.repackage.org.apache.commons.lang.Validate;
-import com.dotcms.repackage.org.apache.felix.http.api.ExtHttpService;
 import com.dotcms.repackage.org.apache.logging.log4j.LogManager;
 import com.dotcms.repackage.org.apache.logging.log4j.core.LoggerContext;
-import com.dotcms.repackage.org.osgi.framework.Bundle;
-import com.dotcms.repackage.org.osgi.framework.BundleContext;
-import com.dotcms.repackage.org.osgi.framework.FrameworkUtil;
-import com.dotcms.repackage.org.osgi.framework.ServiceReference;
-import com.dotcms.repackage.org.osgi.util.tracker.ServiceTracker;
-import com.dotcms.rest.WebResource;
 import com.dotcms.rest.config.RestServiceUtil;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.CacheLocator;
@@ -64,7 +62,7 @@ import com.dotmarketing.util.VelocityUtil;
  *
  */
 public abstract class ExtendedGenericBundleActivator extends GenericBundleActivator {
-	private List<ServiceTracker<ExtHttpService, ExtHttpService>> trackers = new ArrayList<ServiceTracker<ExtHttpService, ExtHttpService>>();
+	private List<ServiceTracker<ExtHttpService, ExtHttpService>> trackers = new ArrayList<>();
 	private boolean languageVariablesNotAdded = true;
 	private static final String DOTCMS_HOME;
 
@@ -129,7 +127,9 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		final Servlet servlet;
 		try {
 			servlet = clazz.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 
@@ -183,10 +183,11 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		Validate.isTrue(regex.startsWith("/"), "Filter regex must start with a /");
 
 		final Filter filterToRegister;
-		
 		try {
 			filterToRegister = clazz.newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}
 
@@ -237,8 +238,8 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	}
 
 	private void addLanguageVariables(Map<String, String> languageVariables, Language language) {
-		Map<String, String> emptyMap = new HashMap<String, String>();
-		Set<String> emptySet = new HashSet<String>();
+		Map<String, String> emptyMap = new HashMap<>();
+		Set<String> emptySet = new HashSet<>();
 		try {
 
 			Logger.info(this, "Registering " + languageVariables.keySet().size() + " language variable(s)");
@@ -270,7 +271,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 				PropertyResourceBundle resourceBundle = new PropertyResourceBundle(resourceURL.openStream());
 
 				// Put the properties in a map
-				Map<String, String> languageVariables = new HashMap<String, String>();
+				Map<String, String> languageVariables = new HashMap<>();
 				for(String key: resourceBundle.keySet()) {
 					languageVariables.put(key, resourceBundle.getString(key));
 				}
@@ -288,6 +289,10 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		Logger.info(this, "Registering PreHook " + clazz.getSimpleName());
 		try {
 			super.addPreHook(clazz.newInstance());
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -297,6 +302,10 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		Logger.info(this, "Registering PostHook " + clazz.getSimpleName());
 		try {
 			super.addPostHook(clazz.newInstance());
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -304,8 +313,9 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	/**
 	 * @deprecated Use {@link #addPostHook(BundleContext, Class)}
 	 * @param posthook Must be an instance!
-	 * @throws Exception 
+	 * @throws Exception
 	 */
+	@Override
 	@Deprecated
 	protected void addPostHook(Object posthook) throws Exception {
 		super.addPostHook(posthook);
@@ -313,7 +323,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	/**
 	 * @deprecated Use {@link #addPostHook(BundleContext, Class)}
 	 * @param posthook Must be an instance!
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Deprecated
 	protected void addPostHook(Class<? extends ContentletAPIPostHook> posthook) throws Exception {
@@ -322,8 +332,9 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	/**
 	 * @deprecated Use {@link #addPreHook(BundleContext, Class)}
 	 * @param prehook Must be an instance!
-	 * @throws Exception 
+	 * @throws Exception
 	 */
+	@Override
 	@Deprecated
 	protected void addPreHook(Object prehook) throws Exception {
 		super.addPreHook(prehook);
@@ -331,7 +342,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	/**
 	 * @deprecated Use {@link #addPreHook(BundleContext, Class)}
 	 * @param prehook Must be an instance!
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	@Deprecated
 	protected void addPreHook(Class<? extends ContentletAPIPreHook> prehook) throws Exception {
@@ -339,7 +350,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	}
 
 
-	protected void addRestService(BundleContext context, final Class<? extends WebResource> clazz) {
+	protected void addRestService(BundleContext context, final Class<?> clazz) {
 		Logger.info(this, "Registering REST service " + clazz.getSimpleName());
 		ServiceTracker<ExtHttpService, ExtHttpService> tracker = new ServiceTracker<ExtHttpService, ExtHttpService>(context, ExtHttpService.class, null) {
 			@Override public ExtHttpService addingService(ServiceReference<ExtHttpService> reference) {
@@ -393,21 +404,6 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		this.trackers.add(tracker);
 
 		CacheLocator.getVeloctyResourceCache().clearCache();
-	}
-
-	protected void addSpringController(BundleContext context, String path, String contextConfigLocation) {
-		Logger.info(this, "Registering spring controller " + contextConfigLocation);
-
-		try {
-			publishBundleServices(context);
-		} catch (Exception e) {
-			Logger.warn(this, "Unable to publish bundle services", e);
-		}
-
-		DispatcherServlet dispatcherServlet = new DispatcherServlet();
-		dispatcherServlet.setContextConfigLocation(contextConfigLocation);
-
-		addServlet(context, dispatcherServlet, path, true);
 	}
 
 	/**
@@ -520,7 +516,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		if (entries != null) {
 			while ( entries.hasMoreElements() ) {
 
-				URL entryUrl = (URL)entries.nextElement();
+				URL entryUrl = entries.nextElement();
 				String fileName = entryUrl.getPath().substring(6);
 				File resourceFile = new File(DOTCMS_HOME + File.separator + fileName);
 
@@ -550,7 +546,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		if (entries != null) {
 			while ( entries.hasMoreElements() ) {
 
-				URL entryUrl = (URL)entries.nextElement();
+				URL entryUrl = entries.nextElement();
 				String fileName = entryUrl.getPath().substring(6);
 				File resourceFile = new File(DOTCMS_HOME + File.separator + fileName);
 				if ( resourceFile.exists() ) {

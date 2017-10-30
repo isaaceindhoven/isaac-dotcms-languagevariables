@@ -1,6 +1,6 @@
 package nl.isaac.dotcms.languagevariables.osgi;
 
-import com.dotcms.repackage.org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleContext;
 
 import nl.isaac.dotcms.languagevariables.languageservice.LanguagePrefixesServlet;
 import nl.isaac.dotcms.languagevariables.servlet.FlushVariablesCache;
@@ -18,7 +18,7 @@ public class LanguageVariablesActivator extends ExtendedGenericBundleActivator {
 	public void start(BundleContext context) throws Exception {
 		// Default DotCMS call
 		initializeServices(context);
-		
+
 		// Add the viewtools
 		addViewTool(context,  LanguageVariablesWebAPI.class, "languageVariables", ViewToolScope.REQUEST);
 
@@ -29,10 +29,10 @@ public class LanguageVariablesActivator extends ExtendedGenericBundleActivator {
 		addServlet(context, LanguagePrefixesServlet.class, "/servlets/glossary/prefixes");
 		addServlet(context, FlushVariablesCache.class, "/servlets/languagevariables/portlet/flush");
 		addServlet(context, UnarchiveVariable.class, "/servlets/languagevariables/portlet/unarchive");
-		
+
 		// Register language variables (portlet name)
 		addLanguageVariables(context);
-		
+
 		// Register PreHook
 		addPreHook(new ContentletPreHook());
 
