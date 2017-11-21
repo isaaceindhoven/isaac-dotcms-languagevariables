@@ -218,7 +218,7 @@
 	<!--Start form for post actions of the center -->
 	<form method="Post" action="" id="search_form" onsubmit="doSearch();return false;">
 		<input type="hidden" name="fullCommand" id="fullCommand" value="">
-		<input type="hidden" name="luceneQuery" id="luceneQuery" value="+structureName:LanguageVariables +(conhost:<%=host.getIdentifier()%> conhost:SYSTEM_HOST) +deleted:false  +working:true">
+		<input type="hidden" name="luceneQuery" id="luceneQuery" value="+contentType:LanguageVariables +(conhost:<%=host.getIdentifier()%> conhost:SYSTEM_HOST) +deleted:false  +working:true">
 		<input type="hidden" name="structureInode" id="structureInode" value="<%=structure.getInode()%>">
 		<input type="hidden" name="fieldsValues" id="fieldsValues" value="conHost,<%=host.getIdentifier()%>,LanguageVariables.key,,LanguageVariables.value,">
 		<input type="hidden" name="categoriesValues" id="categoriesValues" value="">
