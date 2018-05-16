@@ -8,7 +8,9 @@ import java.util.UUID;
 import org.apache.velocity.tools.view.context.ViewContext;
 import org.apache.velocity.tools.view.tools.ViewTool;
 
-import com.dotmarketing.portlets.structure.factories.StructureFactory;
+import com.dotmarketing.business.APILocator;
+import com.dotmarketing.exception.DotDataException;
+import com.dotmarketing.exception.DotSecurityException;
 import com.dotmarketing.portlets.structure.model.Structure;
 import com.dotmarketing.util.Logger;
 
@@ -22,14 +24,14 @@ import nl.isaac.dotcms.languagevariables.util.LanguageVariablesUtil;
  *
  */
 public class LanguageVariablesWebAPI implements ViewTool {
-	
+
 	private LanguageVariablesUtil languageVariablesUtil;
-	
+
 	@Override
 	public void init(Object obj) {
 		this.languageVariablesUtil = new LanguageVariablesUtil(((ViewContext) obj));
 	}
-	
+
 	public String get(String key) {
 		return languageVariablesUtil.get(key);
 	}
@@ -37,7 +39,7 @@ public class LanguageVariablesWebAPI implements ViewTool {
 	public String get(String key, String languageId) {
 		return languageVariablesUtil.get(key, languageId);
 	}
-	
+
 	public List<IncompleteLanguageVariable> getIncompleteKeys(String languageId, String referer) {
 		try {
 			return languageVariablesUtil.getIncompleteKeys(languageId, URLEncoder.encode(referer, "UTF-8"));
@@ -46,33 +48,34 @@ public class LanguageVariablesWebAPI implements ViewTool {
 		}
 		return null;
 	}
-	
-	public Structure testStuctureExists() {
-		Structure structure = 
-				StructureFactory
-				.getStructures()
-				.stream()
-				.filter((s) -> Configuration.getStructureVelocityVarName().equalsIgnoreCase(s.getVelocityVarName()))
-				.findFirst()
-				.orElse(null);
-		
-		return structure;
+
+	public Structure getLanguageVariablesStructure() {
+		try {
+			return APILocator.getStructureAPI().findByVarName(Configuration.getStructureVelocityVarName(), APILocator.getUserAPI().getSystemUser());
+		} catch (DotDataException | DotSecurityException e) {
+			Logger.error(this, "Could not find Language Variables structure by VarName: " + Configuration.getStructureVelocityVarName(), e);
+		}
+		return null;
 	}
-	
+
+	public Structure testStuctureExists() {
+		return getLanguageVariablesStructure();
+	}
+
 	// Used in the monitoringservlet to test the basic functionality
 	public String testLanguageVariable() {
 		if (testStuctureExists() == null) {
 			return null;
 		}
-		
+
 		// Non-existing language variable key
 		final String nonExistingLanguageKey = UUID.randomUUID().toString();
-		
+
 		String languageValue = languageVariablesUtil.get(nonExistingLanguageKey);
 		if (nonExistingLanguageKey.equals(languageValue)) {
 			return nonExistingLanguageKey;
 		}
-		
+
 		return null;
 	}
 }

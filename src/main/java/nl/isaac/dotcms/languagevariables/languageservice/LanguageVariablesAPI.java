@@ -50,9 +50,9 @@ public class LanguageVariablesAPI {
 	}
 
 	public List<KeyValuePair<String, String>> getKeysWithPrefixes(List<String> prefixes) {
-		List<KeyValuePair<String, String>> keyValuePairs = new ArrayList<KeyValuePair<String, String>>();
+		List<KeyValuePair<String, String>> keyValuePairs = new ArrayList<>();
 
-		List<LanguageVariableContentlet> results = new ArrayList<LanguageVariableContentlet>();
+		List<LanguageVariableContentlet> results = new ArrayList<>();
 
 		for (String prefix : prefixes) {
 
@@ -64,7 +64,7 @@ public class LanguageVariablesAPI {
 
 		// convert them to key-value pairs
 		for (LanguageVariableContentlet languageVariable : results) {
-			KeyValuePair<String, String> keyValuePair = new KeyValuePair<String, String>(languageVariable.getKey(),
+			KeyValuePair<String, String> keyValuePair = new KeyValuePair<>(languageVariable.getKey(),
 					languageVariable.getValue());
 			keyValuePairs.add(keyValuePair);
 		}
@@ -96,44 +96,44 @@ public class LanguageVariablesAPI {
 		LanguageVariableContentlet unpublished = getUnpublishedLanguageVariableContentlet(cacheItem);
 		LanguageVariableContentlet missing = getExistingLanguageVariableContentletInAnotherLanguage(cacheItem);
 		LanguageVariableContentlet exists = getLanguageVariableContentlet(cacheItem);
-		
+
 		// Hide LanguageVariable when the key is still in cache, but not incomplete anymore (not archived, published, exists in all languages, exists)
 		// For example after updating the status of a LanguageVariable it still exists in cache as incomplete but isn't, so it shouldn't be shown in the list
 		if (exists != null && archived == null && unpublished == null && missing == null) {
 			return null;
 		}
-		
+
 		// Archived
 		try {
-			if (archived != null) {					
+			if (archived != null) {
 				if (archived.getContentlet().isArchived()) {
-					return new IncompleteLanguageVariable(archived, IncompleteStatus.ARCHIVED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+					return new IncompleteLanguageVariable(archived, IncompleteStatus.ARCHIVED, cacheItem.getPropertyKey(), cacheItem.getLanguageId());
 				} else {
-					return new IncompleteLanguageVariable(archived, IncompleteStatus.UNPUBLISHED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+					return new IncompleteLanguageVariable(archived, IncompleteStatus.UNPUBLISHED, cacheItem.getPropertyKey(), cacheItem.getLanguageId());
 				}
 			}
 		} catch (DotStateException | DotDataException | DotSecurityException e) {
 			Logger.warn(this, "Error while checking if Language Variable is archived", e);
 		}
-		
+
 		// Unpublished
 		if (unpublished != null) {
-			return new IncompleteLanguageVariable(unpublished, IncompleteStatus.UNPUBLISHED, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+			return new IncompleteLanguageVariable(unpublished, IncompleteStatus.UNPUBLISHED, cacheItem.getPropertyKey(), cacheItem.getLanguageId());
 		}
-		
+
 		// Exists - exists, but not in all languages yet
 		if (missing != null) {
-			return new IncompleteLanguageVariable(missing, IncompleteStatus.MISSING, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+			return new IncompleteLanguageVariable(missing, IncompleteStatus.MISSING, cacheItem.getPropertyKey(), cacheItem.getLanguageId());
 		}
-		
+
 		// New - key doesn't exist yet
 		if (exists == null) {
-			return new IncompleteLanguageVariable(null, IncompleteStatus.NOT_FOUND, cacheItem.getPropertyKey(), cacheItem.getLanguageId(), referer, hostIdentifier);
+			return new IncompleteLanguageVariable(null, IncompleteStatus.NOT_FOUND, cacheItem.getPropertyKey(), cacheItem.getLanguageId());
 		}
-		
+
 		return null;
 	}
-	
+
 	private LanguageVariableContentlet getUnpublishedLanguageVariableContentlet(LanguageVariableCacheKey cacheItem) {
 		ContentletQuery unpublishedContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
 		unpublishedContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
@@ -146,32 +146,32 @@ public class LanguageVariablesAPI {
 		unpublishedContentletQuery.addLive(false);
 		unpublishedContentletQuery.addWorking(true);
 		unpublishedContentletQuery.addDeleted(false);
-		
+
 		Contentlet unpublishedContentlet = unpublishedContentletQuery.executeSafeSingle();
-		
+
 		if (unpublishedContentlet != null) {
 			return new LanguageVariableContentlet(unpublishedContentlet);
 		}
 
 		return null;
 	}
-	
+
 	private LanguageVariableContentlet getArchivedLanguageVariableContentlet(LanguageVariableCacheKey cacheItem) {
 		ContentletQuery archivedContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
 		archivedContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
-		
+
 		if (cacheItem.getContentletIdentifier() != null) {
 			archivedContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
 		} else {
 			archivedContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
 		}
-		
+
 		archivedContentletQuery.addLanguage(cacheItem.getLanguageId());
 		archivedContentletQuery.addWorking(true);
 		archivedContentletQuery.addDeleted(true);
-		
+
 		Contentlet archivedContent = archivedContentletQuery.executeSafeSingle();
-		
+
 		if (archivedContent != null) {
 			return new LanguageVariableContentlet(archivedContent);
 		}
@@ -182,12 +182,12 @@ public class LanguageVariablesAPI {
 	private LanguageVariableContentlet getExistingLanguageVariableContentletInAnotherLanguage(LanguageVariableCacheKey cacheItem) {
 		if (getLanguageVariableContentlet(cacheItem) == null) {
 			List<Language> languages = APILocator.getLanguageAPI().getLanguages();
-			
+
 			for (Language language : languages) {
 				if (language.getId() == Long.valueOf(cacheItem.getLanguageId())) {
 					continue;
 				}
-				
+
 				ContentletQuery existingContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
 				existingContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
 				if (cacheItem.getContentletIdentifier() != null) {
@@ -196,10 +196,10 @@ public class LanguageVariablesAPI {
 					existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
 				}
 				existingContentletQuery.addLanguage(language.getId());
-				
-				
+
+
 				Contentlet existingContentlet = existingContentletQuery.executeSafeSingle();
-	
+
 				if (existingContentlet != null) {
 					return new LanguageVariableContentlet(existingContentlet);
 				}
@@ -208,7 +208,7 @@ public class LanguageVariablesAPI {
 
 		return null;
 	}
-	
+
 	private LanguageVariableContentlet getLanguageVariableContentlet(LanguageVariableCacheKey cacheItem) {
 		ContentletQuery existingContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
 		existingContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
@@ -218,7 +218,7 @@ public class LanguageVariablesAPI {
 			existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
 		}
 		existingContentletQuery.addLanguage(cacheItem.getLanguageId());
-		
+
 		Contentlet existingContentlet = existingContentletQuery.executeSafeSingle();
 
 		if (existingContentlet != null) {

@@ -1,4 +1,5 @@
 #set($currentURL = "/c/portal/layout?$request.getQueryString()")
+#set($layoutId = $request.getAttribute("LAYOUT").getId())
 
 <style>
 td.buttonColumnCache {
@@ -101,7 +102,30 @@ td.buttonColumnCache > span > span {
 											<img src="$languageLocale">
 										</td>
 										<td>
-											<a href="$!{incompleteLanguageVariable.action.url}">$incompleteLanguageVariable.keyName</a>
+											#set($linkAction = "")
+											#set($linkText = "")
+											#set($buttonText = "")
+											
+											#if ($incompleteLanguageVariable.status == "ARCHIVED" || $incompleteLanguageVariable.status == "UNPUBLISHED")
+												#set($linkAction = "javascript:editContentlet('$!{incompleteLanguageVariable.contentlet.inode}', '$!{currentURL}')")
+												#if ($incompleteLanguageVariable.status == "ARCHIVED")
+													#set($buttonText = "Unarchive")
+												#elseif ($incompleteLanguageVariable.status == "UNPUBLISHED")
+													#set($buttonText = "Edit")
+												#end												
+											#elseif ($incompleteLanguageVariable.status == "MISSING")
+												#set($contentletLanguage = $languagewebapi.getLanguage("$!{incompleteLanguageVariable.contentlet.getLanguageId()}"))
+												#set($linkAction = "javascript:missingContentlet('$!{incompleteLanguageVariable.contentlet.inode}', '$!{incompleteLanguageVariable.contentlet.structureInode}', '$!{incompleteLanguageVariable.languageId}', '$!{currentURL}')")
+												#set($buttonText = "Create from <img title='Get key and value from $!{contentletLanguage.getLanguage()}' src='/html/images/languages/$!{contentletLanguage.getLanguageCode()}_$!{contentletLanguage.getCountryCode()}.gif'>")
+											#elseif ($incompleteLanguageVariable.status == "NOT_FOUND")
+												#set($linkAction = "javascript:newContentlet('$!{languageVariables.getLanguageVariablesStructure().inode}', '$!{incompleteLanguageVariable.languageId}', '$!{currentURL}')")
+												#set($buttonText = "Create")
+											#end
+											
+											#set($linkText = "$!{incompleteLanguageVariable.keyName}")
+											
+											<a href="$!{linkAction}">$!{linkText}</a>
+											
 										</td>
 										<td class="buttonColumn">
 											#if($incompleteLanguageVariable.status == "ARCHIVED")
@@ -112,13 +136,13 @@ td.buttonColumnCache > span > span {
 												</form>
 												
 												<button dojoType="dijit.form.Button" onClick="dojo.byId('unarchive_key_$!{i}').submit()" iconClass="$!{iconClass}">
-													&emsp;&emsp;&emsp;$!{incompleteLanguageVariable.action.text}
+													&emsp;&emsp;&emsp;$!{buttonText}
 												</button>
 												
 												#set($i = $i + 1)
 											#else
-											<button dojoType="dijit.form.Button" onclick="location.href = '$!{incompleteLanguageVariable.action.url}'; return false;" iconClass="$!{iconClass}">
-												&emsp;&emsp;&emsp;$!{incompleteLanguageVariable.action.text}
+											<button dojoType="dijit.form.Button" onclick="$!{linkAction}; return false;" iconClass="$!{iconClass}">
+												&emsp;&emsp;&emsp;$!{buttonText}
 											</button>
 											#end
 										</td>
@@ -169,3 +193,20 @@ td.buttonColumnCache > span > span {
 	</script>
 	#set($dummy = $request.getSession().removeAttribute("languagevariables_unarchive_status"))
 #end
+
+<script>
+	function newContentlet(structureInode, languageId, referer) {
+		var loc = "/c/portal/layout?p_l_id=$!{layoutId}&p_p_id=content&p_p_action=1&p_p_state=maximized&p_p_mode=view&_content_struts_action=%2Fext%2Fcontentlet%2Fedit_contentlet&_content_cmd=new&_content_referer=" + encodeURIComponent(referer) + "&_content_inode=&selectedStructure=" + structureInode + "&lang=" + languageId;
+		window.location = loc;
+	}
+	
+	function missingContentlet(objId, structureInode, languageId, referer) {
+		var loc = "/c/portal/layout?p_l_id=$!{layoutId}&p_p_id=content&p_p_action=1&p_p_state=maximized&_content_referer=" + encodeURIComponent(referer) + "&_content_sibbling=" + objId + "&_content_cmd=edit&_content_sibblingStructure=" + structureInode + "&_content_struts_action=%2Fext%2Fcontentlet%2Fedit_contentlet&inode=&lang=" + languageId + "&reuseLastLang=true&populateaccept=true";
+		window.location = loc;
+	}
+	
+	function editContentlet(objId, referer) {
+		var loc = "/c/portal/layout?p_l_id=$!{layoutId}&p_p_id=content&p_p_action=1&p_p_state=maximized&p_p_mode=view&_content_struts_action=/ext/contentlet/edit_contentlet&_content_cmd=edit&inode=" + objId + "&referer=" + encodeURIComponent(referer);
+		window.location = loc;
+	}
+</script>
