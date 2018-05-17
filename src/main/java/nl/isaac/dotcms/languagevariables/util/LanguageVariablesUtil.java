@@ -74,7 +74,7 @@ public class LanguageVariablesUtil {
 					if (Configuration.isNotFoundShowInDefaultLanguage()) {
 						value = addKeyToCacheAndReturnValueInDefaultLanguage(key, languageId);
 						if (value != null) {
-							return value;
+							return new RenderTool().eval(context.getVelocityContext(), value);
 						}
 					}
 					return addKeyToCacheAndReturnKey(key, languageId);
