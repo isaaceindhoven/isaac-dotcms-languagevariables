@@ -2,7 +2,8 @@ package nl.isaac.dotcms.languagevariables.util;
 
 import java.util.List;
 
-import com.dotcms.repackage.org.tuckey.web.filters.urlrewrite.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.dotmarketing.beans.Permission;
 import com.dotmarketing.portlets.categories.model.Category;
 import com.dotmarketing.portlets.contentlet.business.ContentletAPIPreHookAbstractImp;
@@ -13,12 +14,14 @@ import com.liferay.portal.model.User;
 
 public class ContentletPreHook extends ContentletAPIPreHookAbstractImp {
 
+	@Override
 	public boolean checkin(Contentlet currentContentlet, ContentletRelationships relationshipsData, List<Category> cats,
 			List<Permission> selectedPermissions, User user, boolean respectFrontendRoles) {
 		keyIsUnique(currentContentlet);
 		return true;
 	}
-	
+
+	@Override
 	public boolean publish(Contentlet contentlet, User user, boolean respectFrontendRoles) {
 		keyIsUnique(contentlet);
 		return true;
@@ -29,18 +32,18 @@ public class ContentletPreHook extends ContentletAPIPreHookAbstractImp {
 		boolean keyExists = false;
 
 		if (LanguageVariableContentlet.isLanguageVariable(newContentlet)) {
-			
+
 			Logger.info(this, "Checking if key already exists for Language Variable: " + (isNew ? "[NEW]" : newContentlet.getIdentifier()));
-			
+
 			LanguageVariableContentlet newLanguageVariable = new LanguageVariableContentlet(newContentlet);
 
 			if (!StringUtils.isBlank(newLanguageVariable.getKey())) {
 				ContentletQuery contentletQueryByKey = new ContentletQuery(Configuration.getStructureVelocityVarName());
 				contentletQueryByKey.addFieldLimitation(true, Configuration.getStructureKeyField(), newLanguageVariable.getKey());
 				contentletQueryByKey.addHostAndIncludeSystemHost(newContentlet.getHost());
-				
+
 				List<Contentlet> contentletsByKey = contentletQueryByKey.executeSafe();
-				
+
 				if (isNew) {
 					keyExists = contentletsByKey.size() != 0;
 				} else {
@@ -52,11 +55,11 @@ public class ContentletPreHook extends ContentletAPIPreHookAbstractImp {
 					}
 				}
 
-				if (keyExists) {					
+				if (keyExists) {
 					throw new RuntimeException("Key already used in another Language Variable contentlet");
 				} else {
 					Logger.info(this, "Language Variable Key is allowed");
-				}				
+				}
 			}
 		}
 	}

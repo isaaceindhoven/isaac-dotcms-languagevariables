@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.dotcms.rendering.velocity.viewtools.content.util.ContentUtils;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.exception.DotDataException;
@@ -17,43 +18,42 @@ import com.dotmarketing.portlets.languagesmanager.model.Language;
 import com.dotmarketing.util.Logger;
 import com.dotmarketing.util.PaginatedArrayList;
 import com.dotmarketing.util.UtilMethods;
-import com.dotmarketing.viewtools.content.util.ContentUtils;
 
 /**
  * Provides functionality to build a Lucene query
- * 
+ *
  * @author xander
  * @author jorith.vandenheuvel
  *
  */
 public class ContentletQuery {
-	
+
 	protected StringBuilder query = new StringBuilder();
 	private String structureName;
-	private final Map<String, String> exactFieldLimitations = new HashMap<String, String>();
-	
+	private final Map<String, String> exactFieldLimitations = new HashMap<>();
+
 	// Paging & sorting
 	private boolean usePaging = false;
 	private int offset = 0;
 	private int limit = -1;
 	private String sortBy = "";
 	private long totalResults = -1;
-	
+
 	public ContentletQuery(String structureName) {
 		this(true, structureName);
 	}
-	
+
 	public ContentletQuery(boolean include, String structureName) {
 		this.structureName = structureName;
 		query.append((include ? "+" : "-") + "structureName:" + structureName);
 	}
-	
+
 	protected String getStructureName() {
 		return structureName;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param include True if this must be included in the result, false otherwise
 	 * @param name The field name
 	 * @param value The value to search for
@@ -62,12 +62,12 @@ public class ContentletQuery {
 		query.append(" " + (include ? "+" : "-"));
 		addFieldLimitationString(name, value);
 	}
-	
+
 	public void addExactFieldLimitation(boolean include, String name, String value) {
 		exactFieldLimitations.put(name,  value);
 		addFieldLimitation(include, name, value);
 	}
-	
+
 	private void addFieldLimitationString(String name, String value) {
 		if(value.contains("*")) {
 			query.append(structureName + "." + name + ":" + escapeValue(value) + " ");
@@ -75,9 +75,9 @@ public class ContentletQuery {
 			query.append(structureName + "." + name + ":\"" + escapeValue(value) + "\" ");
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param include True if this must be included in the result, false otherwise
 	 * @param name The field name
 	 * @param values The values to search for
@@ -89,7 +89,7 @@ public class ContentletQuery {
 		}
 		query.append(")");
 	}
-	
+
 	public void addIdentifierLimitations(boolean include, String... identifiers) {
 		query.append(" " + (include ? "+" : "-") + "(");
 		for(String identifier : identifiers) {
@@ -99,7 +99,7 @@ public class ContentletQuery {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param name The field name
 	 * @param from The lower bound value
 	 * @param to The upper bound value
@@ -107,21 +107,21 @@ public class ContentletQuery {
 	public void addFieldRangeLimitation(String name, String from, String to) {
 		query.append(" +" + structureName + "." + name + ":[" + from + " TO " + to + "] ");
 	}
-	
+
 	private String escapeValue(String value) {
 		return value.replace(":", "\\:").replace("\"", "\\\"");
 	}
-	
+
 	public void addLatestLiveAndNotDeleted(boolean live) {
 		if (live) {
-			addLive(true);			
+			addLive(true);
 		} else {
-			addWorking(true);			
+			addWorking(true);
 		}
 		addDeleted(false);
 	}
 
-	
+
 	/**
 	 * Limit the results of the query to certain categories
 	 * @param include True if this must be included in the result, false otherwise
@@ -134,7 +134,7 @@ public class ContentletQuery {
 		}
 		query.append(")");
 	}
-	
+
 	/**
 	 * Limit the results of the query to certain categories
 	 * @param include True if this must be included in the result, false otherwise
@@ -145,12 +145,12 @@ public class ContentletQuery {
 		for(int i=0; i<categories.length; i++) {
 			categoryVelocityVarNames[i] = categories[i].getCategoryVelocityVarName();
 		}
-		
+
 		addCategoryLimitations(include, categoryVelocityVarNames);
 	}
 
 	/**
-	 * Adds +live to the query 
+	 * Adds +live to the query
 	 * @param live
 	 */
 	public void addLive(boolean live) {
@@ -158,21 +158,21 @@ public class ContentletQuery {
 	}
 
 	/**
-	 * Adds +working to the query 
+	 * Adds +working to the query
 	 * @param working
 	 */
 	public void addWorking(boolean working) {
 		query.append(" +working:" + working);
 	}
-	
+
 	/**
-	 * Adds +deleted to the query 
+	 * Adds +deleted to the query
 	 * @param deleted
 	 */
 	public void addDeleted(boolean deleted) {
 		query.append(" +deleted:" + deleted);
 	}
-	
+
 	/**
 	 * Adds a language limit to the query
 	 * @param language
@@ -180,7 +180,7 @@ public class ContentletQuery {
 	public void addLanguage(Language language) {
 		addLanguage(language.getId());
 	}
-	
+
 	/**
 	 * Adds a language limit to the query
 	 * @param languageId
@@ -204,7 +204,7 @@ public class ContentletQuery {
 			Logger.warn(this, "Tried to add languageId Null!");
 		}
 	}
-	
+
 	/**
 	 * Adds a language limit to the query
 	 * @param languageId
@@ -212,7 +212,7 @@ public class ContentletQuery {
 	public void addLanguage(String languageId) {
 		query.append(" +languageId:" + languageId);
 	}
-	
+
 	/**
 	 * Adds paging to the query
 	 * @param pageSize The number of contentlets per page
@@ -221,9 +221,9 @@ public class ContentletQuery {
 	public void addPaging(Integer pageSize, Integer pageIndex) {
 		ParamValidationUtil.validateParamNotNull(pageSize, "pageSize");
 		ParamValidationUtil.validateParamNotNull(pageIndex, "pageIndex");
-		
+
 		int offset = pageIndex * pageSize;
-		
+
 		this.offset = offset;
 		this.limit = pageSize;
 		this.usePaging = true;
@@ -235,21 +235,21 @@ public class ContentletQuery {
 	 */
 	public void addSorting(String structureName, String fieldName, boolean asc) {
 		ParamValidationUtil.validateParamNotNull(fieldName, "sortBy");
-		
+
 		String sorting = "modDate".equals(fieldName) ? fieldName : structureName + "." + fieldName;
 		String sortingWithOrder = sorting + " " + (asc ? "asc" : "desc");
-		
-		this.sortBy = UtilMethods.isSet(this.sortBy)? this.sortBy + ", " + sortingWithOrder : sortingWithOrder;			
+
+		this.sortBy = UtilMethods.isSet(this.sortBy)? this.sortBy + ", " + sortingWithOrder : sortingWithOrder;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return The total number of results, only when paging is set and the query has been executed. -1 otherwise.
 	 */
 	public long getTotalResults() {
 		return this.totalResults;
 	}
-	
+
 	/**
 	 * Adds a host limit to the query
 	 * @param host
@@ -258,7 +258,7 @@ public class ContentletQuery {
 	public ContentletQuery addHost(Host host) {
 		return addHost(host.getIdentifier());
 	}
-	
+
 	/**
 	 * Adds a host limit to the query
 	 * @param hostIdentifier
@@ -268,7 +268,7 @@ public class ContentletQuery {
 		query.append(" +conhost:" + hostIdentifier);
 		return this;
 	}
-	
+
 	/**
 	 * Adds a host limit to the query (given host AND System HOST
 	 * @param hostIdentifier
@@ -276,7 +276,7 @@ public class ContentletQuery {
 	public void addHostAndIncludeSystemHost(String hostIdentifier) {
 		query.append(" +(conhost:SYSTEM_HOST conhost:" + hostIdentifier + ")");
 	}
-	
+
 	/**
 	 *
 	 * @return The resulting query
@@ -284,28 +284,28 @@ public class ContentletQuery {
 	public String getQuery() {
 		return query.toString();
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return The resulting query as a StringBuilder object
 	 */
 	public StringBuilder getQueryStringBuilder() {
 		return query;
 	}
-	
+
 	public Map<String, String> getExactFieldLimitations() {
 		return Collections.unmodifiableMap(exactFieldLimitations);
 	}
-	
+
 	/**
 	 * Executes the query
 	 * @return The resulting List of Contentlets
 	 */
 	public List<Contentlet> executeSafe() {
-		
+
 		Logger.debug(this, "Executing query: " + query.toString());
 		Logger.debug(this, "Use Paging: " + this.usePaging + ", Limit: " + this.limit + ", Offset: " + this.offset + ", Sort By: " + this.sortBy);
-		
+
 		try {
 			if(this.usePaging) {
 				if(!exactFieldLimitations.isEmpty()) {
@@ -314,14 +314,14 @@ public class ContentletQuery {
 
 				PaginatedArrayList<Contentlet> contentlets = ContentUtils.pullPagenated(query.toString(), this.limit, this.offset, this.sortBy, APILocator.getUserAPI().getSystemUser(), null);
 				this.totalResults = contentlets.getTotalResults();
-				
+
 				Logger.debug(this, "Number Of Results: " + contentlets.size() + ", Total Results: " + contentlets.getTotalResults());
-				
+
 				return contentlets;
 			} else {
 				List<Contentlet> contentlets = APILocator.getContentletAPI().search(query.toString(), this.limit, this.offset, this.sortBy, APILocator.getUserAPI().getSystemUser(), false);
 				contentlets = removeNonExactMatches(contentlets);
-				
+
 				if (Logger.isDebugEnabled(this.getClass())) {
 					if (contentlets == null) {
 						Logger.debug(this, "Contentlets == null");
@@ -329,15 +329,15 @@ public class ContentletQuery {
 						Logger.debug(this, "Number Of Results: " + contentlets.size());
 					}
 				}
-				
+
 				return contentlets;
 			}
-			
+
 		} catch (DotDataException | DotSecurityException e) {
 			Logger.warn(this, "Exception while executing query", e);
 		}
-		
-		return new ArrayList<Contentlet>();
+
+		return new ArrayList<>();
 	}
 
 	/**
@@ -358,7 +358,7 @@ public class ContentletQuery {
 			query.append(")");
 		}
 	}
-	
+
 	/**
 	 * Executes the query and returns the first result. Can be used when you
 	 * are sure that the query returns exactly one result, for instance when
@@ -376,7 +376,7 @@ public class ContentletQuery {
 
 		return null;
 	}
-	
+
 	public Contentlet executeSafeSingle() {
 		List<Contentlet> result = executeSafe();
 
@@ -398,7 +398,7 @@ public class ContentletQuery {
 		if(exactFieldLimitations.isEmpty()) {
 			return contentlets;
 		} else {
-			List<Contentlet> correctMatches = new ArrayList<Contentlet>();
+			List<Contentlet> correctMatches = new ArrayList<>();
 			for(Contentlet contentlet: contentlets) {
 				for(Entry<String, String> fieldLimitation: exactFieldLimitations.entrySet()) {
 					// do not use contentlet.getStringProperty, since that only handles long and string values (not booleans)
@@ -412,5 +412,5 @@ public class ContentletQuery {
 			return correctMatches;
 		}
 	}
-	
+
 }

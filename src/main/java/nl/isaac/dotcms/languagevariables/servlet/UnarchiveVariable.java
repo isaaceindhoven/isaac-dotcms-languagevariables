@@ -7,7 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.dotcms.repackage.org.tuckey.web.filters.urlrewrite.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.liferay.portal.model.User;
@@ -20,23 +21,24 @@ public class UnarchiveVariable extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String hostIdentifier = new RequestUtil(request).getCurrentHost().getIdentifier();
 		String languageId = request.getParameter("languageId");
 		String contentletIdentifier = request.getParameter("contentletIdentifier");
 		String referer = request.getParameter("referer");
-		
-		if (!StringUtils.isBlank(hostIdentifier) && !StringUtils.isBlank(languageId) && !StringUtils.isBlank(contentletIdentifier) && !StringUtils.isBlank(referer)) {		
-			
+
+		if (!StringUtils.isBlank(hostIdentifier) && !StringUtils.isBlank(languageId) && !StringUtils.isBlank(contentletIdentifier) && !StringUtils.isBlank(referer)) {
+
 			ContentletQuery archivedContentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
 			archivedContentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
-			archivedContentletQuery.addIdentifierLimitations(true, contentletIdentifier);	
+			archivedContentletQuery.addIdentifierLimitations(true, contentletIdentifier);
 			archivedContentletQuery.addLanguage(languageId);
 			archivedContentletQuery.addWorking(true);
 			archivedContentletQuery.addDeleted(true);
-			
+
 			Contentlet archivedContent = archivedContentletQuery.executeSafeSingle();
-			
+
 			if (archivedContent != null) {
 				try {
 					User systemUser = APILocator.getUserAPI().getSystemUser();
@@ -46,7 +48,7 @@ public class UnarchiveVariable extends HttpServlet {
 					throw new RuntimeException("Error occured while unarchiving the Language Variable");
 				}
 			}
-			
+
 			response.sendRedirect(referer);
 		} else {
 			response.sendRedirect("/c/portal/layout");
