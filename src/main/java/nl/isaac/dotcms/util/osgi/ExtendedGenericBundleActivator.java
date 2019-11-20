@@ -65,6 +65,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	private List<ServiceTracker<ExtHttpService, ExtHttpService>> trackers = new ArrayList<>();
 	private boolean languageVariablesNotAdded = true;
 	private static final String DOTCMS_HOME;
+	private String bundleName;
 
     private Scheduler scheduler;
     private Properties schedulerProperties;
@@ -89,8 +90,9 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		initializeLoggerContext();
 
 		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		String servletPath = "/servlets/monitoring/" + bundle.getHeaders().get("Bundle-Name");
-		addServlet(context, MonitoringServlet.class, servletPath);
+		bundleName = bundle.getHeaders().get("Bundle-Name");
+		String servletPath = "/servlets/monitoring/" + bundleName;
+		addServlet(context, new MonitoringServlet(bundleName), servletPath, false);
 
 	}
 
@@ -121,8 +123,6 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	protected void addServlet(BundleContext context, final Class<? extends Servlet> clazz, final String path) {
 
 		Validate.notNull(clazz, "Servlet class may not be null");
-		Validate.notEmpty(path, "Servlet path may not be null");
-		Validate.isTrue(path.startsWith("/"), "Servlet path must start with a /");
 
 		final Servlet servlet;
 		try {
@@ -133,8 +133,6 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 			throw new RuntimeException(e);
 		}
 
-		Logger.info(this, "Registering Servlet " + servlet.getClass().getSimpleName() + " on /app" + path);
-
 		addServlet(context, servlet, path, false);
 	}
 
@@ -142,9 +140,20 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	 * @param handleBundleServices is used to add/remove bundleServices, which are needed for the DispatcherServlet
 	 */
 	private void addServlet(BundleContext context, final Servlet servlet, final String path, final boolean handleBundleServices) {
+		Validate.notEmpty(path, "Servlet path may not be null");
+		Validate.isTrue(path.startsWith("/"), "Servlet path must start with a /");
+
+		Logger.info(this, "Registering Servlet " + servlet.getClass().getSimpleName() + " on /app" + path);
+
 		ServiceTracker<ExtHttpService, ExtHttpService> tracker = new ServiceTracker<ExtHttpService, ExtHttpService>(context, ExtHttpService.class, null) {
 			@Override public ExtHttpService addingService(ServiceReference<ExtHttpService> reference) {
 				ExtHttpService extHttpService = super.addingService(reference);
+
+				try {
+					extHttpService.unregisterServlet(servlet);
+				} catch (Throwable t) {
+					// Do nothing, it was probably not registered
+				}
 
 				try {
 					if(handleBundleServices) {
@@ -153,22 +162,23 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 
 					extHttpService.registerServlet(path, servlet, null, null);
 
-				} catch (Exception e) {
-					throw new RuntimeException("Failed to register servlet " + servlet.getClass().getSimpleName(), e);
+				} catch (Throwable t) {
+					Logger.warn(this, "Failed to register servlet " + servlet.getClass().getSimpleName() + " in bundle " + bundleName, t);
+					throw new RuntimeException(t);
 				}
 				return extHttpService;
 			}
 			@Override public void removedService(ServiceReference<ExtHttpService> reference, ExtHttpService extHttpService) {
-				extHttpService.unregisterServlet(servlet);
-				if(handleBundleServices) {
-					try {
+				try {
+					extHttpService.unregisterServlet(servlet);
+					if (handleBundleServices) {
 						unpublishBundleServices();
-					} catch (Exception e) {
-						Logger.error(this, "Failed to unregister servlet " + servlet.getClass().getSimpleName(), e);
 					}
-				}
 
-				super.removedService(reference, extHttpService);
+					super.removedService(reference, extHttpService);
+				} catch (Throwable t) {
+					Logger.warn(this, "Failed to unregister servlet " + servlet.getClass().getSimpleName() + " in bundle " + bundleName, t);
+				}
 			}
 		};
 
