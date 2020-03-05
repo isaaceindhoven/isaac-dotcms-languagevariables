@@ -90,7 +90,7 @@ public class RequestUtil implements ViewTool {
 		try {
 			frontend = uwai.getLoggedInFrontendUser(request);
 			backend  = uwai.getLoggedInUser(request);
-		} catch (DotRuntimeException | PortalException | SystemException e) {
+		} catch (DotRuntimeException e) {
 			Logger.error(this, "Error occured while getting logged in frontend - and backend user", e);
 			throw new RuntimeException(e.toString(), e);
 		}
