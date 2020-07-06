@@ -24,7 +24,7 @@ public class LanguageVariablesCacheItemHandler implements ItemHandler<String> {
 		boolean live = keyObject.getLive();
 		
 		LanguageVariablesAPI contentGlossaryAPI = new LanguageVariablesAPI(languageId, hostIdentifier, live);
-		List<LanguageVariableContentlet> results = contentGlossaryAPI.getLanguageVariablesContentletsWithKey(propertyKey);
+		List<LanguageVariableContentlet> results = contentGlossaryAPI.getLanguageVariablesContentletsWithExactKey(propertyKey);
 		
 		return getHostSpecificResult(results);
 	}

@@ -58,7 +58,7 @@ public class LanguageVariablesAPI {
 
 			// prevent searching for '*' if an empty prefix is given
 			if (UtilMethods.isSet(prefix)) {
-				results.addAll(getLanguageVariablesContentletsWithKey(prefix + "*"));
+				results.addAll(getLanguageVariablesContentletsWithKeyPrefix(prefix + "*"));
 			}
 		}
 
@@ -72,11 +72,29 @@ public class LanguageVariablesAPI {
 		return keyValuePairs;
 	}
 
-	public List<LanguageVariableContentlet> getLanguageVariablesContentletsWithKey(String key) {
+	public List<LanguageVariableContentlet> getLanguageVariablesContentletsWithKeyPrefix(String key) {
 		// retrieve all the contentlets with the prefix
+		Logger.info(this, "get prefix " + key);
+		ContentletQuery contentletQuery = getBaseLanguageVariablesContentletQuery();
+		contentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), key);
+
+		List<Contentlet> results = contentletQuery.executeSafe();
+		return LanguageVariableFactory.getLanguageVariablesFromList(results);
+	}
+
+
+	public List<LanguageVariableContentlet> getLanguageVariablesContentletsWithExactKey(String key) {
+		Logger.info(this, "get exact " + key);
+		ContentletQuery contentletQuery = getBaseLanguageVariablesContentletQuery();
+		contentletQuery.addExactFieldLimitation(true, Configuration.getStructureKeyField(), key);
+
+		List<Contentlet> results = contentletQuery.executeSafe();
+		return LanguageVariableFactory.getLanguageVariablesFromList(results);
+	}
+
+	private ContentletQuery getBaseLanguageVariablesContentletQuery() {
 		ContentletQuery contentletQuery = new ContentletQuery(Configuration.getStructureVelocityVarName());
 		contentletQuery.addHostAndIncludeSystemHost(hostIdentifier);
-		contentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), key);
 		contentletQuery.addLanguage(languageId);
 
 		if (live) {
@@ -87,8 +105,7 @@ public class LanguageVariablesAPI {
 
 		contentletQuery.addDeleted(false);
 
-		List<Contentlet> results = contentletQuery.executeSafe();
-		return LanguageVariableFactory.getLanguageVariablesFromList(results);
+		return contentletQuery;
 	}
 
 	public IncompleteLanguageVariable getIncompleteLanguageVariable(LanguageVariableCacheKey cacheItem, String referer) {

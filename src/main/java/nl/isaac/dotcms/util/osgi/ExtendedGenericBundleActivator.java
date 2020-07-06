@@ -147,6 +147,12 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 				ExtHttpService extHttpService = super.addingService(reference);
 
 				try {
+					extHttpService.unregisterServlet(servlet);
+				} catch (Throwable t) {
+					// Do nothing, it was probably not registered
+				}
+
+				try {
 					if(handleBundleServices) {
 						publishBundleServices(context);
 					}
