@@ -122,7 +122,7 @@ public class LanguageVariablesUtil {
 			
 			ContentletQuery query = new ContentletQuery(Configuration.getStructureVelocityVarName());
 			query.addHostAndIncludeSystemHost(new RequestUtil(request).getCurrentHost().getIdentifier());
-			query.addFieldLimitation(true, Configuration.getStructureKeyField(), key);
+			query.addFieldLimitation(true, Configuration.getStructureKeyField() + "_dotraw", key);
 			
 			Contentlet contentlet = null;
 			List<Contentlet> contentlets = query.executeSafe();

@@ -170,7 +170,7 @@ public class ContentletPostHook extends ContentletAPIPostHookAbstractImp {
 			// 'Save and publish' is clicked, we have access to the old key value to retrieve
 			// the Language Variable contentlets which have to be renamed
 			ContentletQuery contentletQueryByKey = new ContentletQuery(Configuration.getStructureVelocityVarName());
-			contentletQueryByKey.addFieldLimitation(true, Configuration.getStructureKeyField(), previousVersion.getKey());
+			contentletQueryByKey.addFieldLimitation(true, Configuration.getStructureKeyField() + "_dotraw", previousVersion.getKey());
 			contentletQueryByKey.addHostAndIncludeSystemHost(newContentlet.getHost());
 
 			List<Contentlet> results = contentletQueryByKey.executeSafe();

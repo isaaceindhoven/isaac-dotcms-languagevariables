@@ -84,7 +84,6 @@ public class LanguageVariablesAPI {
 
 
 	public List<LanguageVariableContentlet> getLanguageVariablesContentletsWithExactKey(String key) {
-		Logger.info(this, "get exact " + key);
 		ContentletQuery contentletQuery = getBaseLanguageVariablesContentletQuery();
 		contentletQuery.addExactFieldLimitation(true, Configuration.getStructureKeyField(), key);
 
@@ -157,7 +156,7 @@ public class LanguageVariablesAPI {
 		if (cacheItem.getContentletIdentifier() != null) {
 			unpublishedContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
 		} else {
-			unpublishedContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
+			unpublishedContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField() + "_dotraw", cacheItem.getPropertyKey());
 		}
 		unpublishedContentletQuery.addLanguage(cacheItem.getLanguageId());
 		unpublishedContentletQuery.addLive(false);
@@ -180,7 +179,7 @@ public class LanguageVariablesAPI {
 		if (cacheItem.getContentletIdentifier() != null) {
 			archivedContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
 		} else {
-			archivedContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
+			archivedContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField() + "_dotraw", cacheItem.getPropertyKey());
 		}
 		
 		archivedContentletQuery.addLanguage(cacheItem.getLanguageId());
@@ -210,7 +209,7 @@ public class LanguageVariablesAPI {
 				if (cacheItem.getContentletIdentifier() != null) {
 					existingContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
 				} else {
-					existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
+					existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField() + "_dotraw", cacheItem.getPropertyKey());
 				}
 				existingContentletQuery.addLanguage(language.getId());
 				
@@ -232,7 +231,7 @@ public class LanguageVariablesAPI {
 		if (cacheItem.getContentletIdentifier() != null) {
 			existingContentletQuery.addIdentifierLimitations(true, cacheItem.getContentletIdentifier());
 		} else {
-			existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), cacheItem.getPropertyKey());
+			existingContentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField() + "_dotraw", cacheItem.getPropertyKey());
 		}
 		existingContentletQuery.addLanguage(cacheItem.getLanguageId());
 		

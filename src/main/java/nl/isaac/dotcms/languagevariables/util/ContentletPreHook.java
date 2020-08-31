@@ -39,7 +39,7 @@ public class ContentletPreHook extends ContentletAPIPreHookAbstractImp {
 
 			if (!StringUtils.isBlank(newLanguageVariable.getKey())) {
 				ContentletQuery contentletQueryByKey = new ContentletQuery(Configuration.getStructureVelocityVarName());
-				contentletQueryByKey.addFieldLimitation(true, Configuration.getStructureKeyField(), newLanguageVariable.getKey());
+				contentletQueryByKey.addFieldLimitation(true, Configuration.getStructureKeyField() + "_dotraw", newLanguageVariable.getKey());
 				contentletQueryByKey.addHostAndIncludeSystemHost(newContentlet.getHost());
 
 				List<Contentlet> contentletsByKey = contentletQueryByKey.executeSafe();
