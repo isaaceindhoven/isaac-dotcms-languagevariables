@@ -15,37 +15,35 @@ import nl.isaac.dotcms.util.osgi.ViewToolScope;
 public class LanguageVariablesActivator extends ExtendedGenericBundleActivator {
 
 	@Override
-	public void start(BundleContext context) throws Exception {
-		// Default DotCMS call
-		initializeServices(context);
+	public void init(BundleContext context) {
+		try {
 
-		// Add the viewtools
-		addViewTool(context,  LanguageVariablesWebAPI.class, "languageVariables", ViewToolScope.REQUEST);
+			// Add the viewtools
+			addViewTool(context, LanguageVariablesWebAPI.class, "languageVariables", ViewToolScope.REQUEST);
 
-		// Register the portlets
-		registerPortlets(context, new String[] { "conf/portlet.xml", "conf/liferay-portlet.xml"});
+			// Register the portlets
+			registerPortlets(context, new String[]{"conf/portlet.xml", "conf/liferay-portlet.xml"});
 
-		// Register the servlet
-		addServlet(context, LanguagePrefixesServlet.class, "/servlets/glossary/prefixes");
-		addServlet(context, FlushVariablesCache.class, "/servlets/languagevariables/portlet/flush");
-		addServlet(context, UnarchiveVariable.class, "/servlets/languagevariables/portlet/unarchive");
+			// Register the servlet
+			addServlet(context, LanguagePrefixesServlet.class, "/servlets/glossary/prefixes");
+			addServlet(context, FlushVariablesCache.class, "/servlets/languagevariables/portlet/flush");
+			addServlet(context, UnarchiveVariable.class, "/servlets/languagevariables/portlet/unarchive");
 
-		// Register language variables (portlet name)
-		addLanguageVariables(context);
+			// Register language variables (portlet name)
+			addLanguageVariables(context);
 
-		// Register PreHook
-		addPreHook(new ContentletPreHook());
+			// Register PreHook
+			addPreHook(new ContentletPreHook());
 
-		// Register PostHook
-		addPostHook(new ContentletPostHook());
+			// Register PostHook
+			addPostHook(new ContentletPostHook());
 
-		// Create the Language Variables structure, if it doesn't exist already
-		LanguageVariablesStructureFactory.createStructureIfUnavailable();
-	}
+			// Create the Language Variables structure, if it doesn't exist already
+			LanguageVariablesStructureFactory.createStructureIfUnavailable();
 
-	@Override
-	public void stop(BundleContext context) throws Exception {
-		unregisterServices(context);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }
