@@ -18,9 +18,20 @@
 	</organization>
 	<repositories>
 		<repository>
-			<id>dotcms</id>
+			<id>dotcms-libs-release-local</id>
 			<name>dotcms Maven Repository</name>
-			<url>https://repo.dotcms.com/artifactory/libs-release</url>
+			<url>https://repo.dotcms.com/artifactory/libs-release-local/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>dotcms-ext-release-local</id>
+			<name>dotcms Maven Repository</name>
+			<url>https://repo.dotcms.com/artifactory/ext-release-local/</url>
 			<releases>
 				<enabled>true</enabled>
 			</releases>
