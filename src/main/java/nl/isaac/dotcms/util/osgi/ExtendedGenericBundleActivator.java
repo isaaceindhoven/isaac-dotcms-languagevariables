@@ -89,10 +89,10 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		try {
 			super.initializeServices(context);
 			initializeLoggerContext();
-			Logger.info(this, "Starting " + context.getBundle().getSymbolicName());
+			Logger.info(this.getClass().getName(), "Starting " + context.getBundle().getSymbolicName());
 			addMonitoringServlet(context);
 			init(context);
-			Logger.info(this, "Started " + context.getBundle().getSymbolicName());
+			Logger.info(this.getClass().getName(), "Started " + context.getBundle().getSymbolicName());
 		} catch (Throwable t) {
 			Logger.error(this, "Initialization of plugin: " + context.getBundle().getSymbolicName() + " failed with error:", t);
 			throw t;
@@ -159,7 +159,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		Validate.notEmpty(path, "Servlet path may not be null");
 		Validate.isTrue(path.startsWith("/"), "Servlet path must start with a /");
 
-		Logger.info(this, "Registering Servlet " + servlet.getClass().getSimpleName() + " on /app" + path);
+		Logger.info(this.getClass().getName(), "Registering Servlet " + servlet.getClass().getSimpleName() + " on /app" + path);
 
 		final FilterWebInterceptorProvider filterWebInterceptorProvider =
 				FilterWebInterceptorProvider.getInstance(Config.CONTEXT);
@@ -193,7 +193,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 //			throw new RuntimeException(e);
 //		}
 //
-//		Logger.info(this, "Registering Filter " + filterToRegister.getClass().getSimpleName());
+//		Logger.info(this.getClass().getName(), "Registering Filter " + filterToRegister.getClass().getSimpleName());
 //
 //		ServiceTracker<ExtHttpService, ExtHttpService> tracker = new ServiceTracker<ExtHttpService, ExtHttpService>(context, ExtHttpService.class, null) {
 //			@Override public ExtHttpService addingService(ServiceReference<ExtHttpService> reference) {
@@ -223,7 +223,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 //	}
 
 	protected void addMacros(BundleContext context) {
-		Logger.info(this, "Registering macros");
+		Logger.info(this.getClass().getName(), "Registering macros");
 
 		final VelocityEngine engine = VelocityUtil.getEngine();
 		URL macrosExtUrl = context.getBundle().getResource("conf/macros-ext.vm");
@@ -233,14 +233,14 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 			instream = macrosExtUrl.openStream();
 			engine.evaluate(VelocityUtil.getBasicContext(), new StringWriter(), context.getBundle().getSymbolicName(), new InputStreamReader(instream, Charset.forName("UTF-8")));
 		} catch (IOException e) {
-			Logger.warn(this, "Exception while reading macros-ext.vm", e);
+			Logger.warn(this.getClass().getName(), "Exception while reading macros-ext.vm", e);
 		} finally {
 			try {
 				if(instream != null) {
 					instream.close();
 				}
 			} catch (IOException e) {
-				Logger.warn(this, "Exception while closing stream to macros-ext.vm", e);
+				Logger.warn(this.getClass().getName(), "Exception while closing stream to macros-ext.vm", e);
 			}
 		}
 	}
@@ -250,11 +250,11 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 		Set<String> emptySet = new HashSet<>();
 		try {
 
-			Logger.info(this, "Registering " + languageVariables.keySet().size() + " language variable(s)");
+			Logger.info(this.getClass().getName(), "Registering " + languageVariables.keySet().size() + " language variable(s)");
 			APILocator.getLanguageAPI().saveLanguageKeys(language, languageVariables, emptyMap, emptySet);
 
 		} catch (DotDataException e) {
-			Logger.warn(this, "Unable to register language variables", e);
+			Logger.warn(this.getClass().getName(), "Unable to register language variables", e);
 		}
 	}
 
@@ -288,13 +288,13 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 				addLanguageVariables(languageVariables, language);
 
 			} catch (IOException e) {
-				Logger.warn(this, "Exception while registering language variables", e);
+				Logger.warn(this.getClass().getName(), "Exception while registering language variables", e);
 			}
 		}
 	}
 
 	protected void addPreHook(BundleContext context, Class <? extends ContentletAPIPreHook> clazz) {
-		Logger.info(this, "Registering PreHook " + clazz.getSimpleName());
+		Logger.info(this.getClass().getName(), "Registering PreHook " + clazz.getSimpleName());
 		try {
 			super.addPreHook(clazz.newInstance());
 		} catch (InstantiationException e) {
@@ -307,7 +307,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 	}
 
 	protected void addPostHook(BundleContext context, Class <? extends ContentletAPIPostHook> clazz) {
-		Logger.info(this, "Registering PostHook " + clazz.getSimpleName());
+		Logger.info(this.getClass().getName(), "Registering PostHook " + clazz.getSimpleName());
 		try {
 			super.addPostHook(clazz.newInstance());
 		} catch (InstantiationException e) {
@@ -379,7 +379,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 			addLanguageVariables(context);
 		}
 
-		Logger.info(this, "Registering portlet(s)");
+		Logger.info(this.getClass().getName(), "Registering portlet(s)");
 
 		try {
 			registerPortlets(context, new String[] { "conf/portlet.xml", "conf/liferay-portlet.xml"});
@@ -445,7 +445,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 
 			Date date = scheduler.scheduleJob(job, trigger);
 
-			Logger.info(this, "Scheduled job " + jobName + ", next trigger is on " + date);
+			Logger.info(this.getClass().getName(), "Scheduled job " + jobName + ", next trigger is on " + date);
 
 		} catch (ParseException e) {
 			Logger.error(this, "Cron expression '" + cronExpression + "' has an exception. Throwing IllegalArgumentException", e);
@@ -505,14 +505,14 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 				File resourceFile = new File(DOTCMS_HOME + File.separator + fileName);
 
 				if ( resourceFile.exists() ) {
-					Logger.info(this, "File Already Exists, creating backup: "+fileName);
+					Logger.info(this.getClass().getName(), "File Already Exists, creating backup: "+fileName);
 					backupOriginalFile(entryUrl);
 				}
 
 				copyFile(entryUrl, resourceFile);
 			}
 		} else {
-			Logger.warn(this, "Source folder not found");
+			Logger.warn(this.getClass().getName(), "Source folder not found");
 		}
 	}
 
@@ -534,14 +534,14 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 				String fileName = entryUrl.getPath().substring(6);
 				File resourceFile = new File(DOTCMS_HOME + File.separator + fileName);
 				if ( resourceFile.exists() ) {
-					Logger.info(this, "Undeploying file: " + resourceFile.getAbsolutePath());
+					Logger.info(this.getClass().getName(), "Undeploying file: " + resourceFile.getAbsolutePath());
 
 					resourceFile.delete();
 					recoverOriginalFile(entryUrl);
 				}
 			}
 		} else {
-			Logger.warn(this, "Source folder not found");
+			Logger.warn(this.getClass().getName(), "Source folder not found");
 		}
 	}
 
@@ -570,7 +570,7 @@ public abstract class ExtendedGenericBundleActivator extends GenericBundleActiva
 
 	private void copyFile(URL source, File destination) throws IOException {
 
-		Logger.info(this, "Creating file: " + destination.getAbsolutePath());
+		Logger.info(this.getClass().getName(), "Creating file: " + destination.getAbsolutePath());
 		InputStream in = null;
 		OutputStream out = null;
 

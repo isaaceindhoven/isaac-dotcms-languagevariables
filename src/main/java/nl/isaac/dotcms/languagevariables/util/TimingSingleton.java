@@ -172,7 +172,7 @@ public final class TimingSingleton {
 		void stop(int id) {
 			long endTime = System.currentTimeMillis();
 			if (running[id] == 0) {
-				Logger.error(TimingSingleton.class,"called stop before calling start with id " + id);
+				Logger.error(TimingSingleton.class.getName(),"called stop before calling start with id " + id);
 			} else {
 				long diff = endTime - running[id];
 				times[id] = times[id] + diff;

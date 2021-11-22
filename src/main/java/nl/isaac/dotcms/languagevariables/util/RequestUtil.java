@@ -47,7 +47,7 @@ public class RequestUtil implements ViewTool {
 			User backendUser = WebAPILocator.getUserWebAPI().getLoggedInUser(request);
 			return backendUser != null && backendUser.isActive();
 		} catch (Exception e) {
-			Logger.warn(this, "Exception while checking for Admin", e);
+			Logger.warn(this.getClass().getName(), "Exception while checking for Admin", e);
 			return false;
 		}
 	}
@@ -58,7 +58,7 @@ public class RequestUtil implements ViewTool {
 			Role adminRole = APILocator.getRoleAPI().loadCMSAdminRole();
 			return APILocator.getRoleAPI().doesUserHaveRole(backendUser, adminRole);
 		} catch (Exception e) {
-			Logger.warn(this, "Exception while checking for Admin", e);
+			Logger.warn(this.getClass().getName(), "Exception while checking for Admin", e);
 			return false;
 		}
 	}
@@ -117,7 +117,7 @@ public class RequestUtil implements ViewTool {
 			languageId = (String) request.getSession().getAttribute(WebKeys.HTMLPAGE_LANGUAGE);
 		}
 		if(languageId == null) {
-			Logger.warn(this, "Can't detect language, returning default language");
+			Logger.warn(this.getClass().getName(), "Can't detect language, returning default language");
 			languageId = Long.valueOf(APILocator.getLanguageAPI().getDefaultLanguage().getId()).toString();
 		}
 

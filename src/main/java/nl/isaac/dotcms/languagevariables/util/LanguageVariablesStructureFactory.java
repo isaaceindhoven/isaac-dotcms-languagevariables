@@ -44,7 +44,7 @@ public class LanguageVariablesStructureFactory {
 	private static void addStructure() {
 		Structure structure = new Structure();
 		
-		Logger.info(LanguageVariablesStructureFactory.class, "Create structure");
+		Logger.info(LanguageVariablesStructureFactory.class.getName(), "Create structure");
 		structure.setVelocityVarName(Configuration.getStructureVelocityVarName());
 		structure.setName("Language Variables");
 		structure.setStructureType(Structure.STRUCTURE_TYPE_CONTENT);
@@ -67,16 +67,16 @@ public class LanguageVariablesStructureFactory {
 			host.setFieldContentlet("system_field1");
 			host.setVelocityVarName("host1");
 			
-			Logger.info(LanguageVariablesStructureFactory.class, "Add field: " + key.getFieldName());
+			Logger.info(LanguageVariablesStructureFactory.class.getName(), "Add field: " + key.getFieldName());
 			FieldFactory.saveField(key);
 			
-			Logger.info(LanguageVariablesStructureFactory.class, "Add field: " + value.getFieldName());
+			Logger.info(LanguageVariablesStructureFactory.class.getName(), "Add field: " + value.getFieldName());
 			FieldFactory.saveField(value);
 			
-			Logger.info(LanguageVariablesStructureFactory.class, "Add field: " + host.getFieldName());
+			Logger.info(LanguageVariablesStructureFactory.class.getName(), "Add field: " + host.getFieldName());
 			FieldFactory.saveField(host);
 		} catch (DotHibernateException e) {
-			Logger.error(LanguageVariablesStructureFactory.class, "Error while creating Language Variables structure", e);
+			Logger.error(LanguageVariablesStructureFactory.class.getName(), "Error while creating Language Variables structure", e);
 			throw new RuntimeException(e);
 		}
 		

@@ -42,7 +42,7 @@ public class LanguageVariablesWebAPI implements ViewTool {
 		try {
 			return languageVariablesUtil.getIncompleteKeys(languageId, URLEncoder.encode(referer, "UTF-8"));
 		} catch (UnsupportedEncodingException e) {
-			Logger.info(this, "Error occured while encoding referer URL: " + e.getMessage());
+			Logger.info(this.getClass().getName(), "Error occured while encoding referer URL: " + e.getMessage());
 		}
 		return null;
 	}

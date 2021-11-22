@@ -45,7 +45,7 @@ public class ServletWebInterceptor implements WebInterceptor {
         try {
             servlet.service(request, response);
         } catch (ServletException e) {
-            Logger.warn(this, "Exception in servlet " + path, e);
+            Logger.warn(this.getClass().getName(), "Exception in servlet " + path, e);
             throw new IOException(e);
         }
 

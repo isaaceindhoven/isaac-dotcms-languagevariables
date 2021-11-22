@@ -145,7 +145,7 @@ public class ContentletPostHook extends ContentletAPIPostHookAbstractImp {
 				try {
 					savedContentlet = APILocator.getContentletAPI().findContentletByIdentifier(newContentlet.getIdentifier(), false, newContentlet.getLanguageId(), user, respectFrontendRoles);
 				} catch (DotContentletStateException | DotDataException | DotSecurityException e) {
-					Logger.warn(this, "Error occured while finding contentlet by identifier", e);
+					Logger.warn(this.getClass().getName(), "Error occured while finding contentlet by identifier", e);
 				}
 
 				if (savedContentlet != null) {
@@ -158,13 +158,13 @@ public class ContentletPostHook extends ContentletAPIPostHookAbstractImp {
 			LanguageVariableContentlet previousVersion = LanguageVariableFactory.getPreviousVersionInCurrentLanguage(languageVariable, user, respectFrontendRoles);
 
 			if (previousVersion == null) {
-				Logger.info(this, "Skipped RenameAllKeys - previous version of the Language Variable not found");
+				Logger.info(this.getClass().getName(), "Skipped RenameAllKeys - previous version of the Language Variable not found");
 				return;
 			} else if (previousVersion.getKey().equals(languageVariable.getKey())) {
-				Logger.info(this, "Skipped RenameAllKeys - key of previous version of the Language Variable is empty");
+				Logger.info(this.getClass().getName(), "Skipped RenameAllKeys - key of previous version of the Language Variable is empty");
 				return;
 			} else {
-				Logger.info(this, "Executing RenameAllKeys - previous version of Language Variable's key is not equal (or not found): " + previousVersion.getKey());
+				Logger.info(this.getClass().getName(), "Executing RenameAllKeys - previous version of Language Variable's key is not equal (or not found): " + previousVersion.getKey());
 			}
 
 			// 'Save and publish' is clicked, we have access to the old key value to retrieve
@@ -196,7 +196,7 @@ public class ContentletPostHook extends ContentletAPIPostHookAbstractImp {
 					continue;
 				}
 
-				Logger.info(this, "Renaming key for contentlet " + contentlet.getInode());
+				Logger.info(this.getClass().getName(), "Renaming key for contentlet " + contentlet.getInode());
 
 				try {
 
@@ -210,7 +210,7 @@ public class ContentletPostHook extends ContentletAPIPostHookAbstractImp {
 					renamedContentlet = conAPI.checkin(renamedContentlet,  user, respectFrontendRoles);
 
 				} catch (DotStateException | DotSecurityException | DotDataException e) {
-					Logger.warn(this, "Error occured while renaming Language Variable key", e);
+					Logger.warn(this.getClass().getName(), "Error occured while renaming Language Variable key", e);
 				}
 			}
 		}
@@ -220,7 +220,7 @@ public class ContentletPostHook extends ContentletAPIPostHookAbstractImp {
 		String propertyKey = languageVariable.getKey();
 		String languageId = String.valueOf(languageVariable.getLanguageId());
 
-		Logger.info(this, "Language key '" + propertyKey +  "' changed for language " + languageId + ". Flushing cache...");
+		Logger.info(this.getClass().getName(), "Language key '" + propertyKey +  "' changed for language " + languageId + ". Flushing cache...");
 
 		// We flush here for all the hosts, since we can't detect whether the host field changed
 		// The previous versions somehow always have the same host as the new one.
@@ -233,7 +233,7 @@ public class ContentletPostHook extends ContentletAPIPostHookAbstractImp {
 		try {
 			return APILocator.getHostAPI().findAll(APILocator.getUserAPI().getSystemUser(), false);
 		} catch (DotDataException | DotSecurityException e) {
-			Logger.warn(this, "Exception while trying to retrieve all hosts", e);
+			Logger.warn(this.getClass().getName(), "Exception while trying to retrieve all hosts", e);
 		}
 
 		return new ArrayList<>();

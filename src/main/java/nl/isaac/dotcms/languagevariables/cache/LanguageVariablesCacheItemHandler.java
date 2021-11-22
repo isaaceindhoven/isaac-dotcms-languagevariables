@@ -41,12 +41,12 @@ public class LanguageVariablesCacheItemHandler implements ItemHandler<String> {
 				if(resultsWithoutSystemHost.size() == 0) {
 					languageVariable = results.get(0);
 					if(results.size() > 1) {
-						Logger.info(this, "Found multiple language variables with key " + languageVariable.getKey() + " and host SYSTEM_HOST in language " + languageVariable.getLanguageId() + ". Returning random one");
+						Logger.info(this.getClass().getName(), "Found multiple language variables with key " + languageVariable.getKey() + " and host SYSTEM_HOST in language " + languageVariable.getLanguageId() + ". Returning random one");
 					}
 				} else {
 					languageVariable = resultsWithoutSystemHost.get(0);
 					if(resultsWithoutSystemHost.size() > 1) {
-						Logger.info(this, "Found multiple language variables with key " + languageVariable.getKey() + " and host " + languageVariable.getHostIdentifier() + " in language " + languageVariable.getLanguageId() + ". Returning random one");
+						Logger.info(this.getClass().getName(), "Found multiple language variables with key " + languageVariable.getKey() + " and host " + languageVariable.getHostIdentifier() + " in language " + languageVariable.getLanguageId() + ". Returning random one");
 					}
 				}
 			} else {

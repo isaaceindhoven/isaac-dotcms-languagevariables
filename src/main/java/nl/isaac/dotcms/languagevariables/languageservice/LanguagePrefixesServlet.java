@@ -39,7 +39,7 @@ public class LanguagePrefixesServlet extends HttpServlet {
 				String value = keyValuePair.getValue();
 
 				if (key == null) {
-					Logger.warn(this, "Encountered null key, skip it...");
+					Logger.warn(this.getClass().getName(), "Encountered null key, skip it...");
 					continue;
 				}
 

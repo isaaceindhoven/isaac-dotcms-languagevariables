@@ -189,7 +189,7 @@ public class ContentletQuery {
 		if(languageId != null) {
 			addLanguage(languageId.toString());
 		} else {
-			Logger.warn(this, "Tried to add languageId Null!");
+			Logger.warn(this.getClass().getName(), "Tried to add languageId Null!");
 		}
 	}
 
@@ -201,7 +201,7 @@ public class ContentletQuery {
 		if(languageId != null) {
 			addLanguage(languageId.toString());
 		} else {
-			Logger.warn(this, "Tried to add languageId Null!");
+			Logger.warn(this.getClass().getName(), "Tried to add languageId Null!");
 		}
 	}
 
@@ -309,7 +309,7 @@ public class ContentletQuery {
 		try {
 			if(this.usePaging) {
 				if(!exactFieldLimitations.isEmpty()) {
-					Logger.warn(this, "Can't use exact matching in paginated search");
+					Logger.warn(this.getClass().getName(), "Can't use exact matching in paginated search");
 				}
 
 				PaginatedArrayList<Contentlet> contentlets = ContentUtils.pullPagenated(query.toString(), this.limit, this.offset, this.sortBy, APILocator.getUserAPI().getSystemUser(), null);
@@ -334,7 +334,7 @@ public class ContentletQuery {
 			}
 
 		} catch (DotDataException | DotSecurityException e) {
-			Logger.warn(this, "Exception while executing query", e);
+			Logger.warn(this.getClass().getName(), "Exception while executing query", e);
 		}
 
 		return new ArrayList<>();
@@ -383,7 +383,7 @@ public class ContentletQuery {
 		if (result.size() == 1) {
 			return result.get(0);
 		} else {
-			Logger.warn(this, "Expected 1 result but found " + result.size() + ". Returning null");
+			Logger.warn(this.getClass().getName(), "Expected 1 result but found " + result.size() + ". Returning null");
 		}
 
 		return null;

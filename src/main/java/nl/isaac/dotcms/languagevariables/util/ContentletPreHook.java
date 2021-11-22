@@ -33,7 +33,7 @@ public class ContentletPreHook extends ContentletAPIPreHookAbstractImp {
 
 		if (LanguageVariableContentlet.isLanguageVariable(newContentlet)) {
 
-			Logger.info(this, "Checking if key already exists for Language Variable: " + (isNew ? "[NEW]" : newContentlet.getIdentifier()));
+			Logger.info(this.getClass().getName(), "Checking if key already exists for Language Variable: " + (isNew ? "[NEW]" : newContentlet.getIdentifier()));
 
 			LanguageVariableContentlet newLanguageVariable = new LanguageVariableContentlet(newContentlet);
 
@@ -58,7 +58,7 @@ public class ContentletPreHook extends ContentletAPIPreHookAbstractImp {
 				if (keyExists) {
 					throw new RuntimeException("Key already used in another Language Variable contentlet");
 				} else {
-					Logger.info(this, "Language Variable Key is allowed");
+					Logger.info(this.getClass().getName(), "Language Variable Key is allowed");
 				}
 			}
 		}

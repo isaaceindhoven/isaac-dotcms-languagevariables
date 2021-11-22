@@ -48,7 +48,7 @@ public class LanguageVariableFactory {
 					});
 					return contentletVersions;
 			} catch (Exception e) {
-				Logger.warn(LanguageVariableFactory.class, "Can't retrieve versions of contentlet " + newContentlet.getMap().get("key") + ", language " + newContentlet.getLanguageId(), e);
+				Logger.warn(LanguageVariableFactory.class.getName(), "Can't retrieve versions of contentlet " + newContentlet.getMap().get("key") + ", language " + newContentlet.getLanguageId(), e);
 			}
 		}
 		

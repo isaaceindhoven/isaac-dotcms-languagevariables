@@ -74,7 +74,7 @@ public class LanguageVariablesAPI {
 
 	public List<LanguageVariableContentlet> getLanguageVariablesContentletsWithKeyPrefix(String key) {
 		// retrieve all the contentlets with the prefix
-		Logger.info(this, "get prefix " + key);
+		Logger.info(this.getClass().getName(), "get prefix " + key);
 		ContentletQuery contentletQuery = getBaseLanguageVariablesContentletQuery();
 		contentletQuery.addFieldLimitation(true, Configuration.getStructureKeyField(), key);
 
@@ -129,7 +129,7 @@ public class LanguageVariablesAPI {
 				}
 			}
 		} catch (DotStateException | DotDataException | DotSecurityException e) {
-			Logger.warn(this, "Error while checking if Language Variable is archived", e);
+			Logger.warn(this.getClass().getName(), "Error while checking if Language Variable is archived", e);
 		}
 		
 		// Unpublished

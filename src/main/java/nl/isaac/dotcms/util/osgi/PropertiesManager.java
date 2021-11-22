@@ -25,7 +25,7 @@ public class PropertiesManager {
 		this.pluginName = "osgi/" + bundle.getHeaders().get("Bundle-Name") + "/" + bundle.getBundleId();
 		this.retrievedLocalProperties = false;
 		properties = new HashMap<>();
-		Logger.info(this, "Using plugin name '" + pluginName + "'");
+		Logger.info(this.getClass().getName(), "Using plugin name '" + pluginName + "'");
 	}
 
 	public String get(String key) {
@@ -38,7 +38,7 @@ public class PropertiesManager {
 		}
 
 		if(!retrievedLocalProperties) {
-			Logger.info(this, "Reading properties from own properties file for plugin " + pluginName);
+			Logger.info(this.getClass().getName(), "Reading properties from own properties file for plugin " + pluginName);
 			properties = getLocalProperties();
 			retrievedLocalProperties = true;
 		}
@@ -55,10 +55,10 @@ public class PropertiesManager {
 				String value = APILocator.getPluginAPI().loadProperty(pluginName, "environment");
 				configurationPluginAvailable = (value != null);
 			} catch (Exception e) {
-				Logger.warn(this, "Exception while trying to get property 'environment' ", e);
+				Logger.warn(this.getClass().getName(), "Exception while trying to get property 'environment' ", e);
 				configurationPluginAvailable = false;
 			}
-			Logger.info(this, "Configuration plugin available: " + configurationPluginAvailable);
+			Logger.info(this.getClass().getName(), "Configuration plugin available: " + configurationPluginAvailable);
 		}
 
 		return configurationPluginAvailable;
@@ -78,7 +78,7 @@ public class PropertiesManager {
 			}
 
 		} catch (IOException e) {
-			Logger.warn(this, "Exception while retrieving properties from plugin.properties", e);
+			Logger.warn(this.getClass().getName(), "Exception while retrieving properties from plugin.properties", e);
 		}
 
 		return localProperties;

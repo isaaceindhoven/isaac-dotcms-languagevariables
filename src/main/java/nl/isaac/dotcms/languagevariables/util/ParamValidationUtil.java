@@ -69,7 +69,7 @@ public final class ParamValidationUtil {
 				if (!file.mkdir()) {
 					throw new RuntimeException("Cannot create new directory: " + path);
 				} else {
-					Logger.info(ParamValidationUtil.class, "created directory " + path);
+					Logger.info(ParamValidationUtil.class.getName(), "created directory " + path);
 				}
 			} else {
 				throw new IllegalArgumentException("tempDir " + path + " does not exist");
